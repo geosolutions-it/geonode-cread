@@ -1,0 +1,115 @@
+{% extends 'index.html' %}
+{% load i18n %}
+{% load staticfiles %}
+{% load base_tags %}
+
+{% block title %} {% trans "Welcome!" %} - {{ block.super }} {% endblock %}
+
+{% block body_class %}home{% endblock %}
+
+{% comment %}
+This is where you can override the hero area block. You can simply modify the content below or replace it wholesale to meet your own needs.
+{% endcomment %}
+  {% block hero %}
+  <div class="jumbotron jhome">
+    <div class="cccc-header-left">
+		<a id="logo" rel="Home" title="C-READ GEONODE" href="/">
+		   <img src="../static/img/logo/logo2.png" alt="C-READ GEONODE" title="C-READ GEONODE" width="120px"/>  
+		</a>
+		<a id="logo" rel="Home" title="C-READ GEONODE" href="/">
+		   <img src="../static/img/logo/cimh2.png" alt="C-READ GEONODE" title="C-READ GEONODE" width="120px"/>  
+		</a>
+		<a id="logo" rel="Home" title="C-READ GEONODE" href="/">
+		   <img src="../static/img/logo/IDB.png" alt="C-READ GEONODE" title="C-READ GEONODE" width="120px"/>  
+		</a>
+    </div>
+    <div class="container">
+      <!--h1>{% trans "Welcome" %} sul sito CREAD</h1>
+      <p>{% blocktrans %}GeoNode is an open source platform for sharing geospatial data and maps.{% endblocktrans %}</p>
+      <p>{% blocktrans %}If you have any questions about the software or service, join our <a href="https://groups.google.com/d/forum/geonode-users">mailing list</a>.{% endblocktrans %}</p>
+      <span>{% trans 'Need help?' %} <a href="http://docs.geonode.org/en/latest/tutorials/users/quickstart/index.html">{% trans 'Getting Started' %}</a></span-->
+	  
+	  <h1 class="cccc-header-right-h1">C-READ GeoNode </h1>
+    </div>
+  </div>
+  {% endblock %}
+  
+  {% block mainbody %}
+  <div class="container-block">
+	  <div class="container jblock">
+		<div class="row home-facets">
+		    {% with facet_type='home' %}
+		      {% facets as facets %}
+			  <div class="col-md-4 col-md-block">
+				
+				<div class="col-div-a">
+					<p class="text-center">
+						<a class="btn btn-default home-button" href="{% url "layer_browse" %}" role="button" title="{% trans "Layers" %}">
+							{{ facets.layer|default:_("No") }} {% blocktrans count counter=facets.layer %}Layer{% plural %}Layers{% endblocktrans %}
+							<br/><br/>
+							<img style="margin-bottom: 0px;" src="../static/img/layers.png"/>
+						</a>
+					</p>
+				</div>
+				<div class="col-div-b">
+					<p class="text-center">
+						<a class="btn btn-default home-button" href="{% url "maps_browse" %}" role="button" title="{% trans "Maps" %}">
+							{{ facets.map|default:_("No") }} {% blocktrans count counter=facets.map %}Map{% plural %}Maps{% endblocktrans %}
+							<br/><br/>
+							<img style="margin-bottom: 0px;" src="../static/img/maps.png"/>
+					    </a>
+					</p>
+				</div>
+				<div class="col-div-b">
+					<p class="text-center">
+						<a class="btn btn-default home-button" href="{% url "document_browse" %}" role="button" title="{% trans "Documents" %}">
+							{{ facets.document|default:_("No") }} {% blocktrans count counter=facets.document %}Document{% plural %}Documents{% endblocktrans %}
+							<br/><br/>
+							<img style="margin-bottom: 0px;" src="../static/img/documents.png"/>
+					    </a>
+					</p>
+				</div>
+				
+				<br/>
+
+				{% if user.is_authenticated %}
+				<div id="facets-indent">
+					<div class="col-div-a">
+						<p class="text-center">
+							<a class="btn btn-default home-button" href="{% url "cread_upload" %}" role="button" title="{% trans "Upload data" %}">
+								{% trans "Upload data" %}
+								<br/><br/>
+								<img style="margin-bottom: 0px;" src="../static/img/upload.png"/>
+							</a>
+						</p>
+					</div>
+					<div class="col-div-b">
+						<p class="text-center">
+							<a class="btn btn-default home-button" href="{% url "search" %}" role="button" title="{% trans "Search data" %}">
+								{% trans "Search data" %}
+								<br/><br/>
+								<img style="margin-bottom: 0px;" src="../static/img/search.png"/>
+							</a>
+						</p>
+					</div>
+				</div>
+				{% else %}			
+				<div id="single-facet-indent">
+					<div class="col-div-b">
+						<p class="text-center">
+							<a class="btn btn-default home-button" href="{% url "search" %}" role="button" title="{% trans "Search data" %}">
+								{% trans "Search data" %}
+								<br/><br/>
+								<img style="margin-bottom: 0px;" src="../static/img/search.png"/>
+							</a>
+						</p>
+					</div>
+				</div>
+				{% endif %}		
+				
+			  </div>
+		    {% endwith %}
+		</div>
+	  </div>
+  </div>
+  {% endblock %}

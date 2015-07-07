@@ -1,0 +1,416 @@
+[
+    {
+        "pk": 1,
+        "model": "cread.creadcategory",
+        "fields": {
+            "identifier": "cat01",
+            "name": "HydroMet",
+            "description": "Meteorological and Hydrological Data and Projections",
+            "relatedtopic": "19"
+        }
+    },
+    {
+        "pk": 2,
+        "model": "cread.creadcategory",
+        "fields": {
+            "identifier": "cat02",
+            "name": "Hazard and Risks",
+            "description": "Hazard and Risks",
+            "relatedtopic": "19"
+        }
+    },
+    {
+        "pk": 3,
+        "model": "cread.creadcategory",
+        "fields": {
+            "identifier": "cat03",
+            "name": "Environment",
+            "description": "Geographical and BioPhysical Environment",
+            "relatedtopic": "19"
+        }
+    },
+    {
+        "pk": 4,
+        "model": "cread.creadcategory",
+        "fields": {
+            "identifier": "cat04",
+            "name": "Ocean",
+            "description": "Coastal Zone and Ocean",
+            "relatedtopic": "19"
+        }
+    },
+    {
+        "pk": 5,
+        "model": "cread.creadcategory",
+        "fields": {
+            "identifier": "cat05",
+            "name": "Land",
+            "description": "Land Cover and Land Use",
+            "relatedtopic": "19"
+        }
+    },
+    {
+        "pk": 6,
+        "model": "cread.creadcategory",
+        "fields": {
+            "identifier": "cat06",
+            "name": "Agriculture",
+            "description": "Agriculture and Food Security",
+            "relatedtopic": "19"
+        }
+    },
+    {
+        "pk": 7,
+        "model": "cread.creadcategory",
+        "fields": {
+            "identifier": "cat07",
+            "name": "Water",
+            "description": "Water: Availability, Quality and Use",
+            "relatedtopic": "19"
+        }
+    },
+    {
+        "pk": 8,
+        "model": "cread.creadcategory",
+        "fields": {
+            "identifier": "cat08",
+            "name": "Energy",
+            "description": "Energy: Use, Generation and Availability",
+            "relatedtopic": "19"
+        }
+    },
+    {
+        "pk": 9,
+        "model": "cread.creadcategory",
+        "fields": {
+            "identifier": "cat09",
+            "name": "Economy",
+            "description": "Socio-Economic Status",
+            "relatedtopic": "19"
+        }
+    },
+
+
+
+    {
+        "pk": 1001,
+        "model": "cread.creadsubcategory",
+        "fields": {
+            "identifier": "cat01.01",
+            "name": "Precipitation",
+            "description": "Precipitation and general meteorologic monitoring",
+            "category": "1"
+        }
+    },
+    {
+        "pk": 1002,
+        "model": "cread.creadsubcategory",
+        "fields": {
+            "identifier": "cat01.02",
+            "name": "Weather",
+            "description": "Weather forecasting",
+            "category": "1"
+        }
+    },
+    {
+        "pk": 1003,
+        "model": "cread.creadsubcategory",
+        "fields": {
+            "identifier": "cat01.03",
+            "name": "Climate",
+            "description": "Climate projections",
+            "category": "1"
+        }
+    },
+    {
+        "pk": 1004,
+        "model": "cread.creadsubcategory",
+        "fields": {
+            "identifier": "cat01.04",
+            "name": "Hydrological",
+            "description": "Hydrological monitoring",
+            "category": "1"
+        }
+    },
+
+    {
+        "pk": 2001,
+        "model": "cread.creadsubcategory",
+        "fields": {
+            "identifier": "cat02.01",
+            "name": "Drought",
+            "description": "Drought Risk Assessment",
+            "category": "2"
+        }
+    },
+    {
+        "pk": 2002,
+        "model": "cread.creadsubcategory",
+        "fields": {
+            "identifier": "cat02.02",
+            "name": "Flood",
+            "description": "Flood Risk Assessment",
+            "category": "2"
+        }
+    },
+    {
+        "pk": 2003,
+        "model": "cread.creadsubcategory",
+        "fields": {
+            "identifier": "cat02.03",
+            "name": "Hurricane",
+            "description": "Hurricane and Storm surge Impact Analysis",
+            "category": "2"
+        }
+    },
+    {
+        "pk": 2004,
+        "model": "cread.creadsubcategory",
+        "fields": {
+            "identifier": "cat02.04",
+            "name": "Disease",
+            "description": "Disease and Pest Risk Assessment",
+            "category": "2"
+        }
+    },
+    {
+        "pk": 2005,
+        "model": "cread.creadsubcategory",
+        "fields": {
+            "identifier": "cat02.05",
+            "name": "Salt",
+            "description": "Saline Intrusion Assessment",
+            "category": "2"
+        }
+    },
+    {
+        "pk": 2006,
+        "model": "cread.creadsubcategory",
+        "fields": {
+            "identifier": "cat02.06",
+            "name": "Oil Spill",
+            "description": "Oil Spill Assessment",
+            "category": "2"
+        }
+    },
+
+    {
+        "pk": 3001,
+        "model": "cread.creadsubcategory",
+        "fields": {
+            "identifier": "cat03.01",
+            "name": "Topography",
+            "description": "Topography",
+            "category": "3"
+        }
+    },
+    {
+        "pk": 3002,
+        "model": "cread.creadsubcategory",
+        "fields": {
+            "identifier": "cat03.02",
+            "name": "Ecosystem",
+            "description": "Ecosystem and Biodiversity (Terrestrial)",
+            "category": "3"
+        }
+    },
+    {
+        "pk": 3003,
+        "model": "cread.creadsubcategory",
+        "fields": {
+            "identifier": "cat03.03",
+            "name": "Air",
+            "description": "Air Quality",
+            "category": "3"
+        }
+    },
+
+
+
+    {
+        "pk": 4001,
+        "model": "cread.creadsubcategory",
+        "fields": {
+            "identifier": "cat04.01",
+            "name": "Coastal change",
+            "description": "Coastal Zone Monitoring - Beach profile / coastal change",
+            "category": "4"
+        }
+    },
+    {
+        "pk": 4002,
+        "model": "cread.creadsubcategory",
+        "fields": {
+            "identifier": "cat04.02",
+            "name": "Ecosystems",
+            "description": "Coastal Zone Monitoring - Coastal Ecosystems",
+            "category": "4"
+        }
+    },
+    {
+        "pk": 4003,
+        "model": "cread.creadsubcategory",
+        "fields": {
+            "identifier": "cat04.03",
+            "name": "Temperature",
+            "description": "Ocean Monitoring - Sea temperature",
+            "category": "3"
+        }
+    },
+    {
+        "pk": 4004,
+        "model": "cread.creadsubcategory",
+        "fields": {
+            "identifier": "cat04.04",
+            "name": "Tides",
+            "description": "Ocean Monitoring - Tides",
+            "category": "4"
+        }
+    },
+    {
+        "pk": 4005,
+        "model": "cread.creadsubcategory",
+        "fields": {
+            "identifier": "cat04.05",
+            "name": "Bathymetry",
+            "description": "Ocean Monitoring - Bathymetry",
+            "category": "4"
+        }
+    },
+
+    {
+        "pk": 5001,
+        "model": "cread.creadsubcategory",
+        "fields": {
+            "identifier": "cat05.01",
+            "name": "Land COver",
+            "description": "Land Cover and Land Use",
+            "category": "5"
+        }
+    },
+    {
+        "pk": 5002,
+        "model": "cread.creadsubcategory",
+        "fields": {
+            "identifier": "cat05.02",
+            "name": "Protected",
+            "description": "Protected areas and parks",
+            "category": "5"
+        }
+    },
+
+    {
+        "pk": 6001,
+        "model": "cread.creadsubcategory",
+        "fields": {
+            "identifier": "cat06.01",
+            "name": "Productivity",
+            "description": "Agriculture Productivity",
+            "category": "6"
+        }
+    },
+    {
+        "pk": 6002,
+        "model": "cread.creadsubcategory",
+        "fields": {
+            "identifier": "cat06.02",
+            "name": "Soil",
+            "description": "Soil quality",
+            "category": "6"
+        }
+    },
+
+    {
+        "pk": 7001,
+        "model": "cread.creadsubcategory",
+        "fields": {
+            "identifier": "cat07.01",
+            "name": "Availability",
+            "description": "Water Availability",
+            "category": "7"
+        }
+    },
+    {
+        "pk": 7002,
+        "model": "cread.creadsubcategory",
+        "fields": {
+            "identifier": "cat07.02",
+            "name": "Quality",
+            "description": "Water Quality",
+            "category": "7"
+        }
+    },
+    {
+        "pk": 7003,
+        "model": "cread.creadsubcategory",
+        "fields": {
+            "identifier": "cat07.03",
+            "name": "Use",
+            "description": "Water Use",
+            "category": "7"
+        }
+    },
+
+    {
+        "pk": 8001,
+        "model": "cread.creadsubcategory",
+        "fields": {
+            "identifier": "cat08.01",
+            "name": "Use",
+            "description": "Energy Use",
+            "category": "8"
+        }
+    },
+    {
+        "pk": 8002,
+        "model": "cread.creadsubcategory",
+        "fields": {
+            "identifier": "cat08.02",
+            "name": "Renewable",
+            "description": "Renewable Energy Sources",
+            "category": "8"
+        }
+    },
+
+    {
+        "pk": 9001,
+        "model": "cread.creadsubcategory",
+        "fields": {
+            "identifier": "cat09.01",
+            "name": "Industry",
+            "description": "Industry Activity",
+            "category": "9"
+        }
+    },
+    {
+        "pk": 9002,
+        "model": "cread.creadsubcategory",
+        "fields": {
+            "identifier": "cat09.02",
+            "name": "Status",
+            "description": "Socio-economic Status",
+            "category": "9"
+        }
+    },
+    {
+        "pk": 9003,
+        "model": "cread.creadsubcategory",
+        "fields": {
+            "identifier": "cat09.03",
+            "name": "Disaster",
+            "description": "Disaster response",
+            "category": "9"
+        }
+    },
+    {
+        "pk": 9004,
+        "model": "cread.creadsubcategory",
+        "fields": {
+            "identifier": "cat09.04",
+            "name": "Infrastructure",
+            "description": "Maintenance and security of critical infrastructure",
+            "category": "9"
+        }
+    }
+
+]
