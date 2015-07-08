@@ -90,22 +90,35 @@
 
     <section class="widget">
       <ul id="global-errors"></ul>
-      <h4>{% trans "Files to be uploaded" %}</h4>
-      <div id="file-queue"></div>
+      <div>
+          <h4>{% trans "Files to be uploaded" %}</h4>
+          <div id="file-queue"></div>
+      </div>
     </section>
 
-    <section class="charset">
-      <p>{% trans "Select the charset or leave default" %}</p>
-      <select id="charset">
-        {% for charset in charsets %}
-        {% if charset.0 == 'UTF-8' %}
-        <option selected='selected' value={{ charset.0 }}>{{ charset.1 }}</option>
-        {% else %}
-        <option value={{ charset.0 }}>{{ charset.1 }}</option>
-        {% endif %}
-        {% endfor %}
-      </select>
-    </section>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+          <a class="btn btn-primary pull-right" onclick="javascript: $('#advanced_options_panel').toggle();">
+          {% trans "Toggle" %}</a>
+          <h4>Advanced options</h4>
+        </div>
+
+        <div id="advanced_options_panel" class="panel-body form-controls" style="display:none;">
+
+            <section class="charset">
+              <p>{% trans "Select the charset or leave default" %}</p>
+              <select id="charset">
+                {% for charset in charsets %}
+                {% if charset.0 == 'UTF-8' %}
+                <option selected='selected' value={{ charset.0 }}>{{ charset.1 }}</option>
+                {% else %}
+                <option value={{ charset.0 }}>{{ charset.1 }}</option>
+                {% endif %}
+                {% endfor %}
+              </select>
+            </section>
+        </div>
+    </div>
 
     <div id="cread-upload-button-panel">
         <section>

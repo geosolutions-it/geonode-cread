@@ -42,6 +42,9 @@ from geonode.geoserver.helpers import cascading_delete, gs_catalog
 from geonode.layers.views import _resolve_layer
 from geonode.layers.views import _PERMISSION_MSG_METADATA
 
+from cread.base.models import CReadResource, CReadCategory, CReadSubCategory
+from cread.base.forms import CReadCategoryForm, CReadSubCategoryForm
+
 logger = logging.getLogger("geonode.layers.views")
 
 CONTEXT_LOG_FILE = None
@@ -50,6 +53,7 @@ if 'geonode.geoserver' in settings.INSTALLED_APPS:
     from geonode.geoserver.helpers import _render_thumbnail
     from geonode.geoserver.helpers import ogc_server_settings
     CONTEXT_LOG_FILE = ogc_server_settings.LOG_FILE
+
 
 @login_required
 def cread_upload_geo(request, template='cread_upload_geo.html'):
@@ -166,6 +170,15 @@ def layer_metadata(request, layername, template='layers/cread_layer_metadata.htm
         'base.change_resourcebase_metadata',
         _PERMISSION_MSG_METADATA)
 
+    clayerqs = CReadResource.objects.filter(resource=layer)
+
+    if len(clayerqs) == 0:
+        logger.info('cread_resource does not exist for layer %r', layer)
+        clayer = None
+    else:
+        logger.debug('cread_resource found for layer %r (%d)', layer, len(clayerqs))
+        clayer = clayerqs[0]
+
     layer_attribute_set = inlineformset_factory(
         Layer,
         Attribute,
@@ -173,6 +186,8 @@ def layer_metadata(request, layername, template='layers/cread_layer_metadata.htm
         form=LayerAttributeForm,
     )
     topic_category = layer.category
+    cread_category = clayer.category if clayer else None
+    cread_subcategory = clayer.subcategory if clayer else None
 
     poc = layer.poc
     metadata_author = layer.metadata_author
@@ -189,11 +204,19 @@ def layer_metadata(request, layername, template='layers/cread_layer_metadata.htm
             prefix="category_choice_field",
             initial=int(
                 request.POST["category_choice_field"]) if "category_choice_field" in request.POST else None)
+        #cread_category_form = CReadCategoryForm(
+            #request.POST,
+            #prefix="cread_category_choice_field",
+            #initial=int(
+                #request.POST["cread_category_choice_field"]) if "cread_category_choice_field" in request.POST else None)
+        cread_subcategory_form = CReadSubCategoryForm(
+            request.POST,
+            prefix="cread_subcategory_choice_field",
+            initial=int(
+                request.POST["cread_subcategory_choice_field"]) if "cread_subcategory_choice_field" in request.POST else None)
     else:
         layer_form = LayerForm(instance=layer, prefix="resource")
         _preprocess_fields(layer_form)
-
-        #layer_p01_form =
 
         attribute_form = layer_attribute_set(
             instance=layer,
@@ -202,8 +225,17 @@ def layer_metadata(request, layername, template='layers/cread_layer_metadata.htm
         category_form = CategoryForm(
             prefix="category_choice_field",
             initial=topic_category.id if topic_category else None)
+        #cread_category_form = CReadCategoryForm(
+            #prefix="cread_category_choice_field",
+            #initial=cread_category.id if cread_category else None)
+        cread_subcategory_form = CReadSubCategoryForm(
+            prefix="cread_subcategory_choice_field",
+            initial=cread_subcategory.id if cread_subcategory else None)
 
-    if request.method == "POST" and layer_form.is_valid() and attribute_form.is_valid() and category_form.is_valid():
+    if request.method == "POST" \
+        and layer_form.is_valid() \
+        and attribute_form.is_valid() \
+        and cread_subcategory_form.is_valid():
 
         new_poc = layer_form.cleaned_data['poc']
         new_author = layer_form.cleaned_data['metadata_author']
@@ -229,8 +261,42 @@ def layer_metadata(request, layername, template='layers/cread_layer_metadata.htm
             if author_form.has_changed and author_form.is_valid():
                 new_author = author_form.save()
 
-        new_category = TopicCategory.objects.get(
-            id=category_form.cleaned_data['category_choice_field'])
+        # CRead category
+        # note: call to is_valid is needed to compute the cleaned data
+        if(cread_subcategory_form.is_valid()):
+            logger.info("Checking CReadLayer record %r ", cread_subcategory_form.is_valid())
+            #cread_cat_id = cread_category_form.cleaned_data['cread_category_choice_field']
+            #cread_cat_id = cread_cat_id if cread_cat_id else 1
+            #new_creadcategory = CReadCategory.objects.get(id=cread_cat_id)
+            cread_subcat_id = cread_subcategory_form.cleaned_data['cread_subcategory_choice_field']
+            new_creadsubcategory = CReadSubCategory.objects.get(id=cread_subcat_id)
+            new_creadcategory = new_creadsubcategory.category
+            logger.debug("Selected cread cat/subcat: %s : %s / %s",
+                new_creadcategory.identifier,
+                new_creadcategory.name,
+                new_creadsubcategory.identifier)
+
+            if clayer:
+                logger.info("Update CReadResource record")
+            else:
+                logger.info("Create new CReadResource record")
+                clayer = CReadResource()
+                clayer.resource = layer
+
+            clayer.category = new_creadcategory
+            clayer.subcategory = new_creadsubcategory
+            clayer.save()
+            # End cread category
+        else:
+            logger.info("CRead subcategory form is not valid")
+
+        if category_form.is_valid():
+            new_category = TopicCategory.objects.get(
+                id=category_form.cleaned_data['category_choice_field'])
+        else:
+            logger.debug("Assigning default ISO category")
+            new_category = TopicCategory.objects.get(
+                id=new_creadsubcategory.relatedtopic.id)
 
         for form in attribute_form.cleaned_data:
             la = Attribute.objects.get(id=int(form['id'].id))
@@ -258,6 +324,10 @@ def layer_metadata(request, layername, template='layers/cread_layer_metadata.htm
                         layer.service_typename,
                     )))
 
+    logger.debug("layer valid %s ", layer_form.is_valid())
+    logger.debug("attribute valid %s ", attribute_form.is_valid())
+    logger.debug("subcat valid %s ", cread_subcategory_form.is_valid())
+
     if poc is None:
         poc_form = ProfileForm(instance=poc, prefix="poc")
     else:
@@ -272,14 +342,25 @@ def layer_metadata(request, layername, template='layers/cread_layer_metadata.htm
         author_form = ProfileForm(prefix="author")
         author_form.hidden = True
 
+    # creates cat - subcat association
+
+    categories_struct = []
+    for category in CReadCategory.objects.all():
+        subcats = []
+        for subcat in CReadSubCategory.objects.filter(category=category):
+            subcats.append(subcat.id)
+        categories_struct.append((category.id, category.description, subcats))
+
     return render_to_response(template, RequestContext(request, {
         "layer": layer,
-        #"layer_p01_form": layer_p01_form,
         "layer_form": layer_form,
         "poc_form": poc_form,
         "author_form": author_form,
         "attribute_form": attribute_form,
         "category_form": category_form,
+        "cread_form": None,  # read_category_form,
+        "cread_sub_form": cread_subcategory_form,
+        "cread_categories": categories_struct,
     }))
 
 

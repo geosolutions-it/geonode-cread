@@ -64,9 +64,9 @@ LOCALE_PATHS = (
     ) + LOCALE_PATHS
 
 GEONODE_APPS = (
-    'cread',
+    'cread.base',
     ) + GEONODE_APPS
 
 INSTALLED_APPS = (
-    'cread',
+    'cread.base',
     ) + INSTALLED_APPS
