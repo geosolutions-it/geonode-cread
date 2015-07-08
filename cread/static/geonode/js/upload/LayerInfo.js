@@ -230,8 +230,6 @@ define(function (require, exports) {
 
     LayerInfo.prototype.displayUploadedLayerLinks = function(resp) {
 
-        alert('displayUploadedLayerLinks properly overridden');
-
         var self = this;
         // var a = '<a href="' + resp.url + '" class="btn btn-success">' + gettext('Layer Info') + '</a>';
         var b = '<a href="' + resp.url + '/cread_metadata" class="btn btn-warning">' + gettext('Next: Edit Metadata') + '</a>';
