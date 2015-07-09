@@ -18,7 +18,7 @@
 <script src="{{ STATIC_URL }}geonode/js/search/search.js"></script>
 <script type="text/javascript">
   $("body").attr('ng-controller', 'geonode_search_controller');
-  CATEGORIES_ENDPOINT = '{% url 'api_dispatch_list' api_name='cread_api' resource_name='cread_categories' %}';
+  CATEGORIES_ENDPOINT = '{% url 'api_dispatch_list' api_name='cread_api' resource_name='categories' %}';
   KEYWORDS_ENDPOINT = '{% url 'api_dispatch_list' api_name='api' resource_name='keywords' %}';
   REGIONS_ENDPOINT = '{% url 'api_dispatch_list' api_name='api' resource_name='regions' %}';
   HAYSTACK_SEARCH = "{{ HAYSTACK_SEARCH }}".toLowerCase() === "true";

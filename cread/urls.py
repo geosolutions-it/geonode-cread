@@ -5,7 +5,7 @@ from django.conf.urls import include, patterns, url
 from django.views.generic import TemplateView
 
 from geonode.urls import *
-from cread.api.urls import api
+from cread.api.urls import api, override_api
 
 urlpatterns = patterns(
    'cread.layers.cread_upload',  # py file name
@@ -15,5 +15,6 @@ urlpatterns = patterns(
    url(r'^cread-upload/geo/$', 'cread_upload_geo', name='cread_upload_geo'),
    url(r'^layers/(?P<layername>[^/]*)/cread_metadata$', 'layer_metadata', name="cread_layer_metadata"),
    url(r'', include(api.urls)),
+   url(r'', include(override_api.urls)),
 
  ) + urlpatterns
