@@ -7,11 +7,14 @@ import logging
 from django.conf import settings
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models import Count
+from django.http import HttpResponse
 
 from tastypie.constants import ALL, ALL_WITH_RELATIONS
 from tastypie.resources import ModelResource
 from tastypie.serializers import Serializer
 from tastypie import fields
+from tastypie.utils.mime import build_content_type
+
 
 from guardian.shortcuts import get_objects_for_user
 
@@ -19,7 +22,6 @@ from geonode.base.models import ResourceBase
 
 from geonode.api.api import TypeFilteredResource
 from geonode.api.resourcebase_api import ResourceBaseResource, CommonMetaApi, LayerResource, DocumentResource
-
 from cread.base.models import CReadCategory, CReadResource
 
 
@@ -125,6 +127,74 @@ class CReadResourceSerializer(Serializer):
         return json.dumps(data, cls=DjangoJSONEncoder, sort_keys=True)
 
 
+RESPONSE_VALUES = [
+    # fields in the db
+    'id',
+    'uuid',
+    'title',
+    'date',
+    'abstract',
+    'csw_wkt_geometry',
+    'csw_type',
+    'distribution_description',
+    'distribution_url',
+    'owner__username',
+    'share_count',
+    'popular_count',
+    'srid',
+    'category__gn_description',
+    'supplemental_information',
+    'thumbnail_url',
+    'detail_url',
+    'rating',
+]
+
+
+def _add_category_info(id, dict):
+
+    try:
+        res = CReadResource.objects.all().prefetch_related('category').prefetch_related('subcategory').get(id=id)
+        #logger.info("Adding cread info %r", res)
+
+        dict['cread_category_id'] = res.category.id
+        dict['cread_category_name'] = res.category.name
+        dict['cread_category_description'] = res.category.description
+        dict['cread_subcategory_id'] = res.subcategory.id
+        dict['cread_subcategory_name'] = res.subcategory.name
+        dict['cread_subcategory_description'] = res.subcategory.description
+
+    except Exception:
+        # Resource may not have a category assigned
+        pass
+
+
+def _create_response(res, request, data, response_class=HttpResponse, **response_kwargs):
+    """
+    Overrides GeoNode's' own create_response() in BaseResources,
+    because get_list() may be skipping the dehydrate() call when
+    there are multiple objects to return.
+    """
+
+    if isinstance(
+            data,
+            dict) and 'objects' in data and not isinstance(
+            data['objects'],
+            list):
+        logger.info("Adding CREAD info to %d objects", len(data['objects']))
+        objects = list(data['objects'].values(*RESPONSE_VALUES))
+        for obj in objects:
+            _add_category_info(obj['id'], obj)
+        data['objects'] = objects
+
+    desired_format = res.determine_format(request)
+    serialized = res.serialize(request, data, desired_format)
+
+    return response_class(
+        content=serialized,
+        content_type=build_content_type(desired_format),
+        **response_kwargs)
+
+
 class CReadResourceBaseResource(ResourceBaseResource):
 
     """
@@ -136,6 +206,8 @@ class CReadResourceBaseResource(ResourceBaseResource):
     """
 
     def build_filters(self, filters={}):
+        #logger.debug("Filtering base resource by %r", filters)
+
         orm_filters = super(CReadResourceBaseResource, self).build_filters(filters)
 
         if 'cread_category_id__in' in filters:
@@ -144,15 +216,11 @@ class CReadResourceBaseResource(ResourceBaseResource):
         return orm_filters
 
     def dehydrate(self, bundle):
-        res = CReadResource.objects.all().prefetch_related('category').prefetch_related('subcategory').get(id=bundle.obj.id)
-
-        if res:
-            bundle.data['cread_category_id'] = res.category.id
-            bundle.data['cread_subcategory_id'] = res.subcategory.id
-            bundle.data['cread_subcategory_name'] = res.subcategory.name
-            bundle.data['cread_subcategory_description'] = res.subcategory.description
-
+        _add_category_info(bundle.obj.id, bundle.data)
         return bundle
+
+    def create_response(self, request, data, response_class=HttpResponse, **response_kwargs):
+        return _create_response(self, request, data, response_class, **response_kwargs)
 
 
 class CReadResourceResource(ModelResource):
@@ -197,17 +265,11 @@ class CReadLayerResource(LayerResource):
         return orm_filters
 
     def dehydrate(self, bundle):
-
-        bundle = super(CReadLayerResource, self).dehydrate(bundle)
-        res = CReadResource.objects.all().prefetch_related('category').prefetch_related('subcategory').get(id=bundle.obj.id)
-
-        if res:
-            bundle.data['cread_category_id'] = res.category.id
-            bundle.data['cread_subcategory_id'] = res.subcategory.id
-            bundle.data['cread_subcategory_name'] = res.subcategory.name
-            bundle.data['cread_subcategory_description'] = res.subcategory.description
-
+        _add_category_info(bundle.obj.id, bundle.data)
         return bundle
+
+    def create_response(self, request, data, response_class=HttpResponse, **response_kwargs):
+        return _create_response(self, request, data, response_class, **response_kwargs)
 
 
 class CReadDocumentResource(DocumentResource):
@@ -223,14 +285,8 @@ class CReadDocumentResource(DocumentResource):
         return orm_filters
 
     def dehydrate(self, bundle):
-
-        bundle = super(CReadDocumentResource, self).dehydrate(bundle)
-        res = CReadResource.objects.all().prefetch_related('category').prefetch_related('subcategory').get(id=bundle.obj.id)
-
-        if res:
-            bundle.data['cread_category_id'] = res.category.id
-            bundle.data['cread_subcategory_id'] = res.subcategory.id
-            bundle.data['cread_subcategory_name'] = res.subcategory.name
-            bundle.data['cread_subcategory_description'] = res.subcategory.description
-
+        _add_category_info(bundle.obj.id, bundle.data)
         return bundle
+
+    def create_response(self, request, data, response_class=HttpResponse, **response_kwargs):
+        return _create_response(self, request, data, response_class, **response_kwargs)
