@@ -153,7 +153,7 @@ RESPONSE_VALUES = [
 def _add_category_info(id, dict):
 
     try:
-        res = CReadResource.objects.all().prefetch_related('category').prefetch_related('subcategory').get(id=id)
+        res = CReadResource.objects.all().prefetch_related('category').prefetch_related('subcategory').get(resource_id=id)
         #logger.info("Adding cread info %r", res)
 
         dict['cread_category_id'] = res.category.id
