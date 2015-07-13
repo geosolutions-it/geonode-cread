@@ -517,9 +517,15 @@ define(function (require, exports) {
             file = this.files[i];
             if (name === file.name) {
                 this.files.splice(i, 1);
+				
+				var file_name = name.split(".")[0];					
+				$( document ).trigger( "layerRowRemoved", {name: file_name, files: this.files});
+				
                 break;
             }
         }
+		
+		
     };
 
     /** Function to display the files selected for uploading
