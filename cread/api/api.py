@@ -180,11 +180,12 @@ def _create_response(res, request, data, response_class=HttpResponse, **response
             dict) and 'objects' in data and not isinstance(
             data['objects'],
             list):
-        logger.info("Adding CREAD info to %d objects", len(data['objects']))
+        logger.debug("Adding CREAD info to %d objects", len(data['objects']))
         objects = list(data['objects'].values(*RESPONSE_VALUES))
         for obj in objects:
             _add_category_info(obj['id'], obj)
         data['objects'] = objects
+        logger.debug("Added CREAD info")
 
     desired_format = res.determine_format(request)
     serialized = res.serialize(request, data, desired_format)
@@ -211,7 +212,7 @@ class CReadResourceBaseResource(ResourceBaseResource):
         orm_filters = super(CReadResourceBaseResource, self).build_filters(filters)
 
         if 'cread_category_id__in' in filters:
-            orm_filters['creadresource__category_id__in'] = filters['cread_category_id__in']
+            orm_filters['creadresource__category_id__in'] = filters.getlist('cread_category_id__in')
 
         return orm_filters
 
@@ -260,7 +261,7 @@ class CReadLayerResource(LayerResource):
         orm_filters = super(CReadLayerResource, self).build_filters(filters)
 
         if 'cread_category_id__in' in filters:
-            orm_filters['creadresource__category_id__in'] = filters['cread_category_id__in']
+            orm_filters['creadresource__category_id__in'] = filters.getlist('cread_category_id__in')
 
         return orm_filters
 
@@ -280,7 +281,7 @@ class CReadDocumentResource(DocumentResource):
         orm_filters = super(CReadDocumentResource, self).build_filters(filters)
 
         if 'cread_category_id__in' in filters:
-            orm_filters['creadresource__category_id__in'] = filters['cread_category_id__in']
+            orm_filters['creadresource__category_id__in'] = filters.getlist('cread_category_id__in')
 
         return orm_filters
 
