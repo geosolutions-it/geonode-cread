@@ -227,7 +227,9 @@ a:hover, a:focus {
 
 
 .cread_category {
+	font-weight: bold;
 }
 
-.cread_sub_category {
+.cread_subcategory {
+	font-style: oblique;
 }
