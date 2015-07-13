@@ -10,10 +10,9 @@
         {% endif %}{% verbatim %}
         <h4><a href="{{ item.detail_url }}">{{ item.title }}</a></h4>
         <p>
-          <span class="cread_category">{{ item.cread_category_description }}  </span>
-		  <br/>
-          <span class="cread_subcategory">{{ item.cread_subcategory_description }} </span>
-		  <br/>
+          <span ng-if="item.cread_category_description"    class="cread_category">{{ item.cread_category_description }} <br/></span>
+          <span ng-if="item.cread_subcategory_description" class="cread_subcategory">{{ item.cread_subcategory_description }} <br/></span>
+
           <span class="owner">by <a href="/people/profile/{{ item.owner__username }}">{{ item.owner__username }}</a></span>
         </p>
         <p class="abstract">{{ item.abstract }}</p>
