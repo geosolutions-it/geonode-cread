@@ -1,30 +1,103 @@
-{% extends 'index.html' %}
+{% extends "documents/document_upload_base.html" %}
+{% load bootstrap_tags %}
 {% load i18n %}
-{% comment %}
-This is where you can override the hero area block. You can simply modify the content below or replace it wholesale to meet your own needs.
-{% endcomment %}
-  {% block hero %}
-  <div class="jumbotron">
-    <div class="container">
-      <h1>{% trans "Welcome" %} sul sito CREAD</h1>
-      <p>{% blocktrans %}GeoNode is an open source platform for sharing geospatial data and maps.{% endblocktrans %}</p>
-      <p>{% blocktrans %}If you have any questions about the software or service, join our <a href="https://groups.google.com/d/forum/geonode-users">mailing list</a>.{% endblocktrans %}</p>
-      <span>{% trans 'Need help?' %} <a href="http://docs.geonode.org/en/latest/tutorials/users/quickstart/index.html">{% trans 'Getting Started' %}</a></span>
-    </div>
-  </div>
-  {% endblock %}
 
-  {% block mainbody %}
-  <div class="container">
-    <div class="row home-facets">
-      <div class="col-md-4">
+{% block title %} {% trans "Upload Document" %} - {{ block.super }} {% endblock %}
 
-        {% if user.is_authenticated %}
-        <p class="text-center"><a class="btn btn-default" href="{% url "cread_upload_geo" %}" role="button">{% trans "Upload geographic data" %} &raquo;</a></p>
-        <p class="text-center"><a class="btn btn-default" href="{% url "cread_upload_doc" %}" role="button">{% trans "Upload documents" %} &raquo;</a></p>
-        {% endif %}
+{% block body_class %}documents upload{% endblock body_class %}
 
-      </div>
-    </div>
-  </div>
-  {% endblock %}
+{% block head %}
+    {% include "geonode/ext_header.html" %}
+    {% include "geonode/app_header.html" %}
+    {{ block.super }}
+{% endblock %}
+
+{% block body %}
+
+<div class="col-md-3">
+	<ul>
+	<li><b>1. Upload data</b></li>
+	<li>2. Edit metadata</li>
+	<li>3. Publish </li>
+	</ul>
+
+	<br/><br/>
+	<i>
+	<p>
+	This is the first step in the data upload procedure:
+	you'll have to select the files you want to upload to the system.
+	</p>
+	<p>
+	After you've selected the files, you'll have to upload them to the central node.
+	This action may take some time, according to the file size you are going to transfer.
+	</p>
+	<p>
+	Once your data have been uploaded to the server, you will be able to add to it
+	some required information that will help users to search for your new data in the system.
+	</p>
+	</i>
+</div>
+
+<div class="col-md-8">
+  <form id="upload_form"  method="post" enctype="multipart/form-data" action="{% url "cread_upload_doc" %}">
+    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}" />
+    {{ form|as_bootstrap }}
+    <button type="submit" id="upload-button" class="btn btn-danger cread-upload-button">Upload</button>
+  </form>
+
+</div>
+
+{% endblock %}
+
+{#% block sidebar %}
+
+<div class="col-md-4">
+  <h3>{% trans "Permissions"  %}</h3>
+  <form id="permission_form">
+    {% include "_permissions.html" %}
+  </form>
+</div>
+
+{% endblock %#}
+
+{% block extra_script %}
+{% include "_permissions_form_js.html" %}
+
+<script type="text/javascript">
+    $('#id_doc_file').on('change', function(){
+        if($('#id_title').val() == ''){
+            $('#id_title').val($('#id_doc_file').val().replace("C:\\fakepath\\", ""));
+        }
+    });
+	
+    $("#resource").select2({
+        minimumInputLength: 1,
+        placeholder: 'Select layer, map or empty',
+        width: 'element',
+        ajax: {
+          traditional: true,
+          url: '{% url 'api_dispatch_list' api_name='api' resource_name='base' %}',
+          data: function(term,page){
+            return {
+              type__in: ['layer','map'],
+              title__contains: term.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, '')
+            }
+          },
+          results: function(data) {
+            return {
+              results: $.map(data.objects,function(object){
+                return {id: object.id, text: object.title};
+              })
+            }
+          }          
+        }
+    });
+    
+	$('#upload_form').submit(function(){
+      $('#permissions').val(JSON.stringify(permissionsString($('#permission_form'),'base')));
+    });
+
+	/* fix to align the drop-down width to the other fields width */
+	$("#s2id_resource").css( "width", "100%" );
+</script>
+{% endblock extra_script %}

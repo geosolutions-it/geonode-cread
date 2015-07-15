@@ -233,3 +233,11 @@ a:hover, a:focus {
 .cread_subcategory {
 	font-style: oblique;
 }
+
+#s2id_resource{
+	height: 40px;
+}
+
+.cread-upload-button{
+  margin-bottom: 10px;
+}

@@ -45,6 +45,21 @@ from geonode.layers.views import _PERMISSION_MSG_METADATA
 from cread.base.models import CReadResource, CReadCategory, CReadSubCategory
 from cread.base.forms import CReadCategoryForm, CReadSubCategoryForm
 
+from django.http import Http404
+from django.template import loader
+from django.core.exceptions import PermissionDenied
+from django.views.generic.edit import CreateView
+
+from geonode.base.models import ResourceBase
+from geonode.documents.models import Document
+from geonode.documents.forms import DocumentForm, DocumentCreateForm
+
+ALLOWED_DOC_TYPES = settings.ALLOWED_DOCUMENT_TYPES
+
+_PERMISSION_MSG_GENERIC = _('You do not have permissions for this document.')
+_PERMISSION_MSG_METADATA = _(
+    "You are not permitted to modify this document's metadata")
+
 logger = logging.getLogger("geonode.layers.views")
 
 CONTEXT_LOG_FILE = None
@@ -289,7 +304,7 @@ def layer_metadata(request, layername, template='layers/cread_layer_metadata.htm
             # End cread category
         else:
             logger.info("CRead subcategory form is not valid")
-
+			
         if category_form.is_valid():
             new_category = TopicCategory.objects.get(
                 id=category_form.cleaned_data['category_choice_field'])
@@ -360,7 +375,7 @@ def layer_metadata(request, layername, template='layers/cread_layer_metadata.htm
         "category_form": category_form,
         "cread_form": None,  # read_category_form,
         "cread_sub_form": cread_subcategory_form,
-        "cread_categories": categories_struct,
+        "cread_categories": categories_struct
     }))
 
 
@@ -390,3 +405,241 @@ def log_snippet(log_file):
         fsize = f.tell()  # Get Size
         f.seek(max(fsize - 10024, 0), 0)  # Set pos @ last n chars
         return f.read()
+
+
+class CreadDocumentUploadView(CreateView):
+    template_name = 'cread_upload_doc.html'
+    form_class = DocumentCreateForm
+
+    def get_context_data(self, **kwargs):
+        context = super(CreadDocumentUploadView, self).get_context_data(**kwargs)
+        context['ALLOWED_DOC_TYPES'] = ALLOWED_DOC_TYPES
+        return context
+
+    def form_valid(self, form):
+        """
+        If the form is valid, save the associated model.
+        """
+        self.object = form.save(commit=False)
+        self.object.owner = self.request.user
+        resource_id = self.request.POST.get('resource', None)
+        if resource_id:
+            self.object.content_type = ResourceBase.objects.get(id=resource_id).polymorphic_ctype
+            self.object.object_id = resource_id
+        # by default, if RESOURCE_PUBLISHING=True then document.is_published
+        # must be set to False
+        is_published = True
+        if settings.RESOURCE_PUBLISHING:
+            is_published = False
+        self.object.is_published = is_published
+        self.object.save()
+        self.object.set_permissions(form.cleaned_data['permissions'])
+        return HttpResponseRedirect(
+            reverse(
+                'document_metadata',
+                args=(
+                    self.object.id,
+                )))
+
+
+def _resolve_document(request, docid, permission='base.change_resourcebase',
+                      msg=_PERMISSION_MSG_GENERIC, **kwargs):
+    '''
+    Resolve the document by the provided primary key and check the optional permission.
+    '''
+    return resolve_object(request, Document, {'pk': docid},
+                          permission=permission, permission_msg=msg, **kwargs)
+
+						  
+@login_required
+def document_metadata(
+        request,
+        docid,
+        template='documents/cread_document_metadata.html'):
+    
+    logger.debug("*** ENTER CREAD:document_metadata")
+    
+    document = None
+    try:
+        document = _resolve_document(
+            request,
+            docid,
+            'base.change_resourcebase_metadata',
+            _PERMISSION_MSG_METADATA)
+
+    except Http404:
+        return HttpResponse(
+            loader.render_to_string(
+                '404.html', RequestContext(
+                    request, {
+                        })), status=404)
+
+    except PermissionDenied:
+        return HttpResponse(
+            loader.render_to_string(
+                '401.html', RequestContext(
+                    request, {
+                        'error_message': _("You are not allowed to edit this document.")})), status=403)
+
+    if document is None:
+        return HttpResponse(
+            'An unknown error has occured.',
+            mimetype="text/plain",
+            status=401
+        )
+    else:	
+        cdocumentqs = CReadResource.objects.filter(resource=document)
+
+	if len(cdocumentqs) == 0:
+		logger.info('cread_resource does not exist for document %r', document)
+		cdocument = None
+	else:
+		logger.debug('cread_resource found for document %r (%d)', document, len(cdocumentqs))
+		cdocument = cdocumentqs[0]
+			
+        poc = document.poc
+        metadata_author = document.metadata_author
+        topic_category = document.category
+	cread_subcategory = cdocument.subcategory if cdocument else None
+
+        if request.method == "POST":
+            document_form = DocumentForm(
+                request.POST,
+                instance=document,
+                prefix="resource")
+            category_form = CategoryForm(
+                request.POST,
+                prefix="category_choice_field",
+                initial=int(
+                    request.POST["category_choice_field"]) if "category_choice_field" in request.POST else None)
+	    cread_subcategory_form = CReadSubCategoryForm(
+	    	request.POST,
+		prefix="cread_subcategory_choice_field",
+		initial=int(
+			request.POST["cread_subcategory_choice_field"]) if "cread_subcategory_choice_field" in request.POST else None)
+        else:
+            document_form = DocumentForm(instance=document, prefix="resource")
+            category_form = CategoryForm(
+                prefix="category_choice_field",
+                initial=topic_category.id if topic_category else None)
+            cread_subcategory_form = CReadSubCategoryForm(
+	    	prefix="cread_subcategory_choice_field",
+		initial=cread_subcategory.id if cread_subcategory else None)
+
+        if request.method == "POST" and document_form.is_valid(
+        ) and cread_subcategory_form.is_valid():
+            new_poc = document_form.cleaned_data['poc']
+            new_author = document_form.cleaned_data['metadata_author']
+            new_keywords = document_form.cleaned_data['keywords']
+            #new_category = TopicCategory.objects.get(
+            #    id=category_form.cleaned_data['category_choice_field'])
+
+            if new_poc is None:
+                if poc.user is None:
+                    poc_form = ProfileForm(
+                        request.POST,
+                        prefix="poc",
+                        instance=poc)
+                else:
+                    poc_form = ProfileForm(request.POST, prefix="poc")
+                if poc_form.has_changed and poc_form.is_valid():
+                    new_poc = poc_form.save()
+
+            if new_author is None:
+                if metadata_author is None:
+                    author_form = ProfileForm(request.POST, prefix="author",
+                                              instance=metadata_author)
+                else:
+                    author_form = ProfileForm(request.POST, prefix="author")
+                if author_form.has_changed and author_form.is_valid():
+                    new_author = author_form.save()
+			 
+	    # CRead category
+	    # note: call to is_valid is needed to compute the cleaned data
+	    if(cread_subcategory_form.is_valid()):
+	    	logger.info("Checking CReadLayer record %r ", cread_subcategory_form.is_valid())
+		cread_subcat_id = cread_subcategory_form.cleaned_data['cread_subcategory_choice_field']
+		new_creadsubcategory = CReadSubCategory.objects.get(id=cread_subcat_id)
+		new_creadcategory = new_creadsubcategory.category
+		logger.debug("Selected cread cat/subcat: %s : %s / %s",
+			new_creadcategory.identifier,
+			new_creadcategory.name,
+			new_creadsubcategory.identifier)
+
+		if cdocument:
+			logger.info("Update CReadResource record")
+		else:
+			logger.info("Create new CReadResource record")
+			cdocument = CReadResource()
+			cdocument.resource = document
+		
+		cdocument.category = new_creadcategory
+		cdocument.subcategory = new_creadsubcategory
+		cdocument.save()
+		# End cread category
+	    else:
+		logger.info("CRead subcategory form is not valid")
+
+
+            if category_form.is_valid():
+            	new_category = TopicCategory.objects.get(
+                	id=category_form.cleaned_data['category_choice_field'])
+            else:
+            	logger.debug("Assigning default ISO category")
+            	new_category = TopicCategory.objects.get(
+                	id=new_creadsubcategory.relatedtopic.id)
+					
+            if new_poc is not None and new_author is not None:
+                the_document = document_form.save()
+                the_document.poc = new_poc
+                the_document.metadata_author = new_author
+                the_document.keywords.add(*new_keywords)
+                Document.objects.filter(id=the_document.id).update(category=new_category)
+                return HttpResponseRedirect(
+                    reverse(
+                        'document_detail',
+                        args=(
+                            document.id,
+                        )))
+
+	logger.debug("subcat valid %s ", cread_subcategory_form.is_valid())
+		
+        if poc is None:
+            poc_form = ProfileForm(request.POST, prefix="poc")
+        else:
+            if poc is None:
+                poc_form = ProfileForm(instance=poc, prefix="poc")
+            else:
+                document_form.fields['poc'].initial = poc.id
+                poc_form = ProfileForm(prefix="poc")
+                poc_form.hidden = True
+
+        if metadata_author is None:
+            author_form = ProfileForm(request.POST, prefix="author")
+        else:
+            if metadata_author is None:
+                author_form = ProfileForm(
+                    instance=metadata_author,
+                    prefix="author")
+            else:
+                document_form.fields[
+                    'metadata_author'].initial = metadata_author.id
+                author_form = ProfileForm(prefix="author")
+                author_form.hidden = True
+
+        categories_struct = []
+	for category in CReadCategory.objects.all():
+		subcats = []
+		for subcat in CReadSubCategory.objects.filter(category=category):
+			subcats.append(subcat.id)
+		categories_struct.append((category.id, category.description, subcats))
+			
+        return render_to_response(template, RequestContext(request, {
+            "document": document,
+            "document_form": document_form,
+            "poc_form": poc_form,
+            "author_form": author_form,
+            "category_form": category_form,
+            "cread_sub_form": cread_subcategory_form,
+            "cread_categories": categories_struct
+        }))
