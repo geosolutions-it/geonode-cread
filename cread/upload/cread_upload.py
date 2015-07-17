@@ -176,6 +176,11 @@ def cread_upload_geo(request, template='cread_upload_geo.html'):
 
 
 @login_required
+def layer_metadata_update(request, layername, template='layers/cread_layer_metadata_update.html'):
+    return layer_metadata(request, layername, template=template)
+
+
+@login_required
 def layer_metadata(request, layername, template='layers/cread_layer_metadata.html'):
     logger.debug("*** ENTER CREAD:layer_metadata")
 
@@ -450,15 +455,15 @@ def _resolve_document(request, docid, permission='base.change_resourcebase',
     return resolve_object(request, Document, {'pk': docid},
                           permission=permission, permission_msg=msg, **kwargs)
 
-						  
+
 @login_required
 def document_metadata(
         request,
         docid,
         template='documents/cread_document_metadata.html'):
-    
+
     logger.debug("*** ENTER CREAD:document_metadata")
-    
+
     document = None
     try:
         document = _resolve_document(
@@ -553,7 +558,7 @@ def document_metadata(
                     author_form = ProfileForm(request.POST, prefix="author")
                 if author_form.has_changed and author_form.is_valid():
                     new_author = author_form.save()
-			 
+
 	    # CRead category
 	    # note: call to is_valid is needed to compute the cleaned data
 	    if(cread_subcategory_form.is_valid()):
