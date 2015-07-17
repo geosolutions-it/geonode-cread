@@ -81,33 +81,78 @@ define(['underscore',
     buildFileInfo = function (files) {
         var name, info;
 		
-		var _continue = false, log;
-        var obj_keys = Object.keys(layers);
-		
-        for (name in files) {	
+		var files_names = Object.keys(files); 
+		if(files_names.length > 1){
+			//
+			// Is not possible to select multiple dataset
+			//
+			log_error({
+				title: 'WARNING',
+				message: interpolate(gettext("Too much data sets: only one dataset at time"), "")
+			});
+		}else{
+			name = files_names[0];
+			
+			var _continue = false, log;
+			var obj_keys = Object.keys(layers);
+		    
 			if(obj_keys.length >= 1){
-			    // Check the current selected file with the first selected one
-			    var lay = layers[obj_keys[0]];
+				// Check the current selected file with the first selected one
+				var lay = layers[obj_keys[0]];
 				var ext = lay.type.main;
 				
-				var file_extension = files[name][0].name.split(".");	
-				file_extension = file_extension[file_extension.length - 1];
+				//
+				// Collect the incoming formats
+				//
+				var ext_array = [];
+				if(files[name].length > 0){
+					var fSet = files[name];
+					for(var i=0; i<fSet.length; i++){
+						var f = fSet[i];
+						var file_ext = f.name.split(".");	
+						file_ext = file_ext[file_ext.length - 1];
+						
+						ext_array.push(file_ext);
+					}
+				}
 				
-				if(ext == "shp"){					
-					if(file_extension == "fix" || file_extension == "prj" || file_extension == "qix" || 
-						file_extension == "sbn" || file_extension == "sbx" || file_extension == "shx" || file_extension == "dbf"){
-						_continue = true;
-					}else{ 
-						log = "Incorrect file type (only .fix, .prj, .qix, .sbn, .sbx, .shx or .dbf are supported in this case): " + files[name][0].name;
+				//
+				// Checking selected files 
+				//
+				if(ext == "shp"){	
+					for(var i=0; i<ext_array.length; i++){
+						var file_extension = ext_array[i];
+						if(file_extension == "shp"){
+							log = "Only one dataset at time (a dataset is already selected): " + name + "." + file_extension;
+							_continue = false;
+							break;
+						}else if(file_extension == "fix" || file_extension == "prj" || file_extension == "qix" || 
+							file_extension == "sbn" || file_extension == "sbx" || file_extension == "shx" || file_extension == "dbf"){
+							_continue = true;
+						}else{ 
+							log = "Incorrect file type (only .fix, .prj, .qix, .sbn, .sbx, .shx or .dbf are supported in this case): " + name + "." + file_extension;
+							_continue = false;
+							break;
+						}
 					}
 				}else if(ext == "tiff" || ext == "tif"){
-					if(file_extension == "tfw"){
-						_continue = true;
-					}else{
-						log = "Incorrect file type (only .tfw is supported in this case): " + files[name][0].name;
+					for(var i=0; i<ext_array.length; i++){
+						var file_extension = ext_array[i];
+						if(file_extension == "tiff" || file_extension == "tif"){
+							log = "Only one dataset at time (a dataset is already selected): " + name + "." + file_extension;
+							_continue = false;
+							break;
+						}else if(file_extension == "tfw"){
+							_continue = true;
+						}else{
+							log = "Incorrect file type (only .tfw is supported in this case): " + name + "." + file_extension;
+							_continue = false;
+							break;
+						}
 					}
 				}else{
-					log = "Only one dataset at time (a dataset is already selected): " + files[name][0].name;
+					log = "Only one dataset at time can be loaded: a dataset is already selected: " + name;
+					_continue = false;
 				}				
 			}else{
 				_continue = true;
@@ -134,7 +179,7 @@ define(['underscore',
 					message: interpolate(gettext(log), "")
 				});
 			}
-        }
+		}
     };
 
 
