@@ -34,6 +34,11 @@
 		<li id="nav_documents">
 		  <a href="{% url "document_browse" %}">{% trans "Documents" %}</a>
 		</li>
+		{% if user.is_authenticated %}		
+		<li id="nav_documents">
+		  <a href="{% url "cread_upload" %}">{% trans "Upload" %}</a>
+		</li>
+		{% endif %}
 	   {% block extra_tab %}
 	   <!--{% endblock %}
 		<li id="nav_people">
@@ -71,7 +76,7 @@
 		{% else %}
 		<li>
 		  <a href="#" data-toggle="modal" data-target="#SigninModal" role="button" >
-			{% trans "Sign in" %} 
+			{% trans "Sign in" %}
 		  </a>
 		</li>
 		{% endif %}
