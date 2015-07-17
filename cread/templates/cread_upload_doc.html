@@ -12,8 +12,17 @@
     {{ block.super }}
 {% endblock %}
 
-{% block body %}
 
+{% block body_outer %}
+<div class="page-header">
+  <h2 class="page-title">{% trans "Upload Documents" %}</h2>
+	<p>Allowed document types:
+	{% for doc in ALLOWED_DOC_TYPES %}
+		.{{ doc }}
+	{% endfor %}
+	</p>
+</div>
+<div class="row">
 <div class="col-md-3">
 	<ul>
 	<li><b>1. Upload data</b></li>
@@ -47,7 +56,10 @@
 
 </div>
 
-{% endblock %}
+  {% block sidebar %}{% endblock sidebar %}
+</div>
+{% endblock body_outer %}
+
 
 {#% block sidebar %}
 
@@ -89,10 +101,10 @@
                 return {id: object.id, text: object.title};
               })
             }
-          }          
+          }
         }
     });
-    
+
 	$('#upload_form').submit(function(){
       $('#permissions').val(JSON.stringify(permissionsString($('#permission_form'),'base')));
     });

@@ -13,9 +13,8 @@
 
 {% block body_outer %}
 <div class="page-header">
-  <a href="{% url "document_browse" %}" class="btn btn-primary pull-right">{% trans "Explore Documents" %}</a>
   <h2 class="page-title">{% trans "Edit Metadata" %}</h2>
-</div> 
+</div>
 <div class="row">
 
   <div class="col-md-3">
@@ -62,7 +61,7 @@
           <input type="submit" class="btn btn-primary" value="{% trans "Update" %}"/>
         </div-->
       {% csrf_token %}
-	  
+
 	  <div class="row">
 		<div id="layer_form_head" class="col-md-9 form-controls">
 			<!-- start form layer_form -->
@@ -70,7 +69,7 @@
 		  {% include "bootstrap/field.html" with field=document_form.abstract %}
 		</div>
 	  </div>
-	  
+
 	  <!-- Mandatory data: category -->
 
       <div class="row">
@@ -97,7 +96,7 @@
             </fieldset>
           </div>
       </div>
-	  
+
 	  <!-- Everything else. These are the optional fields the base user won't know how to fill -->
       <div class="row">
             <div class="col-md-9">
@@ -133,7 +132,7 @@
 							<input type="radio" name="category_choice_field" value="{{ choice.0 }}"
 							{% ifequal category_form.initial choice.0 %}
 							  checked="checked"
-							{% endifequal %}> 
+							{% endifequal %}>
 							{{ choice.1 }}
 							</input>
 						  </div>
