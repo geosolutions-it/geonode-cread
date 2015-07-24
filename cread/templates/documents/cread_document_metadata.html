@@ -2,7 +2,7 @@
 {% load i18n %}
 {% load bootstrap_tags %}
 
-{% block title %}{{ document.typename }} — {{ block.super }}{% endblock %}
+{% block title %}{{ document.title }} — {{ block.super }}{% endblock %}
 
 {% block head %}
   {% include "geonode/ext_header.html" %}
@@ -37,65 +37,69 @@
         </i>
   </div>
 
-  <div class="col-md-8">
-    <p class="lead">
-        {% trans "Editing details for" %} {{ document.title }}
-    </p>
-    <form class="form-horizontal" action="{% url "cread_document_metadata" document.id %}" method="POST">
-      {% if document_form.errors or category_form.errors %}
-        <div style="background-color: pink">{% blocktrans %}Error updating metadata.  Please check the following fields: {% endblocktrans %}
-            <ul>
-        {% for field in document_form %}
-            {% if field.errors %}
-                <li>{{ field.label }}</li>
-            {% endif %}
-        {% endfor %}
+    <div class="col-md-8">
+        <p class="lead">
+            {% trans "Editing details for" %} {{ document.title }}
+        </p>
+        <form class="form-horizontal" action="{% url "cread_document_metadata" document.id %}" method="POST">
+            {% if document_form.errors or category_form.errors %}
+                <div style="background-color: pink">{% blocktrans %}Error updating metadata.  Please check the following fields: {% endblocktrans %}
+                    <ul>
+                    {% for field in document_form %}
+                        {% if field.errors %}
+                            <li>{{ field.label }}</li>
+                        {% endif %}
+                    {% endfor %}
 
-        {% if category_form.errors %}
-            <li>{{ category_form.errors.as_ul }}</li>
-        {% endif %}
-            </ul>
-        </div>
-      {% endif %}
+                    {% if category_form.errors %}
+                        <li>{{ category_form.errors.as_ul }}</li>
+                    {% endif %}
+                    </ul>
+                </div>
+            {% endif %}
+
         <!--div class="form-actions">
           <input type="submit" class="btn btn-primary" value="{% trans "Update" %}"/>
         </div-->
-      {% csrf_token %}
 
-	  <div class="row">
-		<div id="cread_form_head" class="col-md-9 form-controls">
-			<!-- start form layer_form -->
-		  {% include "bootstrap/field.html" with field=document_form.title %}
-		  {% include "bootstrap/field.html" with field=document_form.abstract %}
-		</div>
-	  </div>
+        {% csrf_token %}
 
-	  <!-- Mandatory data: category -->
+        <!-- First row: mandatory data: we'll pick them one by one -->
+        <div class="row">
+            <div id="cread_form_head" class="col-md-9 form-controls">
+                <!-- start form layer_form -->
 
-      <div class="row">
-          <div class="col-md-9  form-controls" >
-            <fieldset id="cread_subcategory_form">
-              <label class="control-label required-field">{% trans "Category" %}</label>
-              {% autoescape off %}
+              {{ baseinfo_form|as_bootstrap }}
 
-              {% for category in cread_categories %}
-              <h5> {{category.1}} </h5>
-                  {% for choice in cread_sub_form.cread_subcategory_choice_field.field.choices %}
-                      {% if choice.0 in category.2 %}
-              <div class="radio col-md-12">
-                <input type="radio" name="cread_subcategory_choice_field" value="{{ choice.0 }}"
-                          {% ifequal cread_sub_form.initial choice.0 %} checked="checked" {% endifequal %}>
-                  {{ choice.1 }}
-                </input>
-              </div>
-                      {% endif %}
+            </div>
+        </div>
 
-                  {% endfor %}
-              {% endfor %}
-              {% endautoescape %}
-            </fieldset>
-          </div>
-      </div>
+        <!-- Mandatory data: category -->
+
+        <div class="row">
+            <div class="col-md-9  form-controls form-group" >
+                <label class="control-label required-field">{% trans "Category" %}</label>
+
+                <fieldset id="cread_subcategory_form">
+                {% autoescape off %}
+
+                    {% for category in cread_categories %}
+                        <div class="cread-metadata-category"> {{category.1}} </div>
+                        {% for choice in cread_sub_form.cread_subcategory_choice_field.field.choices %}
+                            {% if choice.0 in category.2 %}
+                                <div class="radio col-md-12 cread-metadata-subcategory">
+                                    <input type="radio" name="cread_subcategory_choice_field" value="{{ choice.0 }}"
+                                        {% ifequal cread_sub_form.initial choice.0 %} checked="checked" {% endifequal %}>
+                                        {{ choice.1 }}
+                                    </input>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    {% endfor %}
+                {% endautoescape %}
+                </fieldset>
+            </div>
+        </div>
 
 	  <!-- Everything else. These are the optional fields the base user won't know how to fill -->
       <div class="row">

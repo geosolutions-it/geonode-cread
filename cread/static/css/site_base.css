@@ -261,3 +261,18 @@ a:hover, a:focus {
 .cread-meta-button{
   margin-bottom: 10px;
 }
+
+#cread_subcategory_form .cread-metadata-category {
+    font-weight: 700;
+    font-style: italic;
+    margin-top: 10px;
+}
+
+#cread_subcategory_form .cread-metadata-subcategory {
+    margin-left: 20px;
+    margin-top: -8px;
+}
+
+fieldset#cread_subcategory_form {
+    margin-left: 15px;
+}

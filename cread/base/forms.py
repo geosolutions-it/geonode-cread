@@ -56,3 +56,8 @@ class CReadSubCategoryForm(forms.Form):
         return cleaned_data
 
 
+class CReadBaseInfoForm(forms.Form):
+    """Contains base info for CREAD resource: title, abstract"""
+
+    title = forms.CharField(255, required=True)
+    abstract = forms.CharField(widget=forms.Textarea, required=True)

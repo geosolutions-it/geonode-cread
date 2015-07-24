@@ -22,28 +22,28 @@
         Editing details for {{ layer_title }}
       {% endblocktrans %}
     </p>
-    <form class="form-horizontal" action="{% url "cread_layer_metadata" layer.service_typename %}" method="POST">
+    <form class="form-horizontal" action="{% url "cread_layer_metadata_update" layer.service_typename %}" method="POST">
 
-      {% if layer_form.errors or attribute_form.errors or category_form.errors %}
-    	  <p class="bg-danger">{% blocktrans %}Error updating metadata.  Please check the following fields: {% endblocktrans %}</p>
-        <ul class="bg-danger">
-          {% for field in layer_form %}
-            {% if field.errors %}
-            <li>{{ field.label }}</li>
-            {% endif %}
-          {% endfor %}
-          {% if attribute_form.errors %}
-            <li>{% trans "Attributes" %}</li>
-            {% for field in attribute_form %}
-            {% if field.errors %}
-            <li>{{ field.errors }}</li>
-            {% endif %}
+        {% if layer_form.errors or attribute_form.errors or category_form.errors %}
+            <p class="bg-danger">{% blocktrans %}Error updating metadata.  Please check the following fields: {% endblocktrans %}</p>
+            <ul class="bg-danger">
+            {% for field in layer_form %}
+                {% if field.errors %}
+                    <li>{{ field.label }}</li>
+                {% endif %}
             {% endfor %}
-          {% endif %}
-          {% if category_form.errors %}
-            <li>{{ category_form.errors.as_ul }}</li>
-          {% endif %}
-          </ul>
+            {% if attribute_form.errors %}
+                <li>{% trans "Attributes" %}</li>
+                {% for field in attribute_form %}
+                    {% if field.errors %}
+                        <li>{{ field.errors }}</li>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+            {% if category_form.errors %}
+                <li>{{ category_form.errors.as_ul }}</li>
+            {% endif %}
+            </ul>
         {% endif %}
 
 
@@ -51,43 +51,40 @@
 
         <!-- First row: mandatory data: we'll pick them one by one -->
         <div class="row">
-
             <div id="cread_form_head" class="col-md-9 form-controls">
                 <!-- start form layer_form -->
 
-              {% include "bootstrap/field.html" with field=layer_form.title %}
-              {% include "bootstrap/field.html" with field=layer_form.abstract %}
+              {{ baseinfo_form|as_bootstrap }}
 
             </div>
-
         </div>
 
         <!-- Mandatory data: category -->
 
-       <div class="row">
-          <div class="col-md-9  form-controls" >
-            <fieldset id="cread_subcategory_form">
-              <label class="control-label required-field">{% trans "Category" %}</label>
-              {% autoescape off %}
+        <div class="row">
+            <div class="col-md-9  form-controls form-group" >
+                <label class="control-label required-field">{% trans "Category" %}</label>
 
-              {% for category in cread_categories %}
-              <h5> {{category.1}} </h5>
-                  {% for choice in cread_sub_form.cread_subcategory_choice_field.field.choices %}
-                      {% if choice.0 in category.2 %}
-              <div class="radio col-md-12">
-                <input type="radio" name="cread_subcategory_choice_field" value="{{ choice.0 }}"
-                          {% ifequal cread_sub_form.initial choice.0 %} checked="checked" {% endifequal %}>
-                  {{ choice.1 }}
-                </input>
-              </div>
-                      {% endif %}
+                <fieldset id="cread_subcategory_form">
+                {% autoescape off %}
 
-                  {% endfor %}
-              {% endfor %}
-              {% endautoescape %}
-            </fieldset>
-          </div>
-       </div>
+                    {% for category in cread_categories %}
+                        <div class="cread-metadata-category"> {{category.1}} </div>
+                        {% for choice in cread_sub_form.cread_subcategory_choice_field.field.choices %}
+                            {% if choice.0 in category.2 %}
+                                <div class="radio col-md-12 cread-metadata-subcategory">
+                                    <input type="radio" name="cread_subcategory_choice_field" value="{{ choice.0 }}"
+                                        {% ifequal cread_sub_form.initial choice.0 %} checked="checked" {% endifequal %}>
+                                        {{ choice.1 }}
+                                    </input>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    {% endfor %}
+                {% endautoescape %}
+                </fieldset>
+            </div>
+        </div>
 
         <!-- Everything else. These are the optional fields the base user won't know how to fill -->
         <div class="row">
@@ -102,9 +99,6 @@
                     </div>
 
                 <div id="advanced_metadata_panel" class="panel-body form-controls" style="display:none;">
-                    {% include "bootstrap/field.html" with field=layer_form.purpose %}
-                    {% include "bootstrap/field.html" with field=layer_form.supplemental_information %}
-
                       <!-- TODO: include explicitly only the fields we want to make editable -->
 
                     {{ layer_form|as_bootstrap }}

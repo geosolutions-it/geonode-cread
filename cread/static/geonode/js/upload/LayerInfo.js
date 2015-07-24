@@ -232,7 +232,7 @@ define(function (require, exports) {
 
         var self = this;
         // var a = '<a href="' + resp.url + '" class="btn btn-success">' + gettext('Layer Info') + '</a>';
-        var b = '<a href="' + resp.url + '/cread_metadata" class="btn btn-warning">' + gettext('Next: Edit Metadata') + '</a>';
+        var b = '<a href="' + resp.url + '/cread_metadata_create" class="btn btn-warning">' + gettext('Next: Edit Metadata') + '</a>';
         // var c = '<a href="' + resp.url.replace(/^\/layers/, '/gs') + '/style/manage" class="btn btn-warning">' + gettext('Manage Styles') + '</a>';
         var msg_col = "";
         if (resp.info){
