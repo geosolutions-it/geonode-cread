@@ -101,6 +101,21 @@ define(function (require, exports) {
      */
     LayerInfo.prototype.collectErrors = function () {
         var errors = [];
+		
+		var mosaic_is_valid = true;
+		var is_granule = $('#' + this.name + '-mosaic').is(':checked');
+		var is_time_valid = $('#' + this.name + '-timedim').is(':checked') && !$('#' + this.name + '-timedim-value-valid').is(':visible');
+
+		/* -- DISABLED in order to allow pure Spatial Mosaics
+        if (is_granule) {
+			mosaic_is_valid = is_time_valid;
+		}
+        */
+
+		if (is_granule && !mosaic_is_valid) {
+			errors.push('The configuration of the file as a Mosaic Granule is not valid, please fix the issue and try again');
+		}
+
         if (this.type) {
             errors = this.type.findTypeErrors(this.getExtensions());
         } else {
@@ -136,7 +151,7 @@ define(function (require, exports) {
      *  @returns {FromData}
      */
     LayerInfo.prototype.prepareFormData = function (form_data) {
-        var i, ext, file, perm, geogig, geogig_store, time;
+        var i, ext, file, perm, geogig, geogig_store, time, mosaic;
 
         if (!form_data) {
             form_data = new FormData();
@@ -162,6 +177,63 @@ define(function (require, exports) {
         if (time_enabled) {
             time = $('#' + this.main.name.slice(0, -4) + '-time').is(':checked');
             form_data.append('time', time);
+        }
+        if (mosaic_enabled) {
+            mosaic = $('#' + this.main.name.slice(0, -4) + '-mosaic').is(':checked');
+			var is_time_valid = $('#' + this.main.name.slice(0, -4) + '-timedim').is(':checked') && !$('#' + this.main.name.slice(0, -4) + '-timedim-value-valid').is(':visible');
+
+			if (mosaic /*&& is_time_valid*/) {
+				form_data.append('mosaic', mosaic);
+
+				var append_to_mosaic_opts = $('#' + this.main.name.slice(0, -4) + '-mosaic-granule').is(':checked');
+				var append_to_mosaic_name = $('#' + this.main.name.slice(0, -4) + '-mosaic-granule-format-select').val();
+
+				//console.log("append_to_mosaic_opts:" + append_to_mosaic_opts + " / append_to_mosaic_name:" + append_to_mosaic_name);
+
+                if (is_time_valid) {
+                    var time_regex = $('#' + this.main.name.slice(0, -4) + '-timedim-format-select').val();
+                    var time_value = $('#' + this.main.name.slice(0, -4) + '-timedim-value').val();
+
+                    //console.log("time_regex:" + time_regex + " / time_value:" + time_value);
+                    
+                    var time_presentation_opts = $('#' + this.main.name.slice(0, -4) + '-timedim-presentation').is(':checked');
+                    var time_presentation = "LIST";
+                    var time_presentation_res = 0;
+                    if (time_presentation_opts) {
+                        time_presentation = $('#' + this.main.name.slice(0, -4) + '-timedim-presentation-format-select').val();
+                        
+                        if (time_presentation === 'DISCRETE_INTERVAL') {
+                            // Years
+                            time_presentation_res += parseInt( $('#' + this.main.name.slice(0, -4) + '-timedim-presentation-years').val() ) * 31536000000;
+                            // Months
+                            time_presentation_res += parseInt( $('#' + this.main.name.slice(0, -4) + '-timedim-presentation-months').val() ) * 2628000000;
+                            // Weeks
+                            time_presentation_res += parseInt( $('#' + this.main.name.slice(0, -4) + '-timedim-presentation-weeks').val() ) * 604800000;
+                            // Days
+                            time_presentation_res += parseInt( $('#' + this.main.name.slice(0, -4) + '-timedim-presentation-days').val() ) * 86400000;
+                            // Hours
+                            time_presentation_res += parseInt( $('#' + this.main.name.slice(0, -4) + '-timedim-presentation-hours').val() ) * 3600000;
+                            // Minutes
+                            time_presentation_res += parseInt( $('#' + this.main.name.slice(0, -4) + '-timedim-presentation-minutes').val() ) * 60000;
+                            // Seconds
+                            time_presentation_res += parseInt( $('#' + this.main.name.slice(0, -4) + '-timedim-presentation-seconds').val() ) * 1000;
+                        }
+                    }
+
+                    //console.log("time_presentation:" + time_presentation + " / time_presentation_res:" + time_presentation_res);
+                    
+                    form_data.append('mosaic_time_regex', time_regex);
+                    form_data.append('mosaic_time_value', time_value);
+                    
+                    form_data.append('time_presentation', time_presentation);
+                    form_data.append('time_presentation_res', time_presentation_res);
+                }
+                
+				form_data.append('append_to_mosaic_opts', append_to_mosaic_opts);
+				if (append_to_mosaic_opts) {
+					form_data.append('append_to_mosaic_name', append_to_mosaic_name);
+				}
+			}
         }
 
         form_data.append('base_file', this.main);
@@ -472,13 +544,56 @@ define(function (require, exports) {
                 type: this.type.name,
                 format: this.type.format,
                 geogig: geogig_enabled,
-                time: time_enabled
+                time: time_enabled,
+				mosaic: mosaic_enabled
             });
         file_queue.append(li);
         this.errors = this.collectErrors();
         this.displayFiles();
         this.displayErrors();
         this.element = $(this.selector);
+		
+	    var time_re_txt = "[0-9]{8}";
+
+        $('#' + this.name + '-mosaic').on('change', this.doImageMosaicToggle);
+        $('#' + this.name + '-mosaic-granule').on('change', this.doImageMosaicGranuleOptionsToggle);
+        $('#' + this.name + '-timedim').on('change', this.doImageMosaicTimedimOptionsToggle);
+        $('#' + this.name + '-timedim-presentation').on('change', this.doImageMosaicTimedimPresentationOptionsToggle);
+        $('#' + this.name + '-mosaic-granule-format-select').on('change', this.doImageMosaicGranuleLayerSelect);
+
+        $('#' + this.name + '-timedim-format-select').on('change', function() {
+             var input = $(this);
+
+             time_re_txt = input.val();
+
+			 var base_name = this.name.split('-')[0];
+
+			 $('#' + base_name + '-timedim-value-valid').show();
+        });
+        
+        $('#' + this.name + '-timedim-presentation-format-select').on('change', function() {
+             var input = $(this);
+
+			 var base_name = this.name.split('-')[0];
+             
+             if (input.val() === 'DISCRETE_INTERVAL') {
+                $('#' + base_name + '-mosaic-timedim-presentation-res-options').show();
+             } else {
+                 $('#' + base_name + '-mosaic-timedim-presentation-res-options').hide();
+             }
+        });
+        
+        $('#' + this.name + '-timedim-value').on('input', function() {
+           var input = $(this);
+           	
+           var re = new RegExp(time_re_txt, "g");
+           var is_valid = re.test(input.val());
+           if(is_valid){
+		      $('#' + this.name + '-valid').hide();
+		   } else {
+		      $('#' + this.name + '-valid').show();
+	       }
+        });
 
         $('#' + this.name + '\\:geogig_toggle').on('change', this.doGeoGigToggle);
 
@@ -601,6 +716,112 @@ define(function (require, exports) {
         }
     };
 
+    LayerInfo.prototype.doImageMosaicToggle = function (event) {
+        var target = event.target || event.srcElement;
+        var id = target.id;
+        var base_name = id.split('-')[0];
+        var mosaic_chkbox = $('#' + id).is(':checked');
+        if (mosaic_chkbox) {
+            $('#' + base_name + '-mosaic-options').show();
+        } else {
+            $('#' + base_name + '-mosaic-options').hide();
+        }
+    };
+    
+    LayerInfo.prototype.doImageMosaicTimedimOptionsToggle = function (event) {
+        var target = event.target || event.srcElement;
+        var id = target.id;
+        var base_name = id.split('-')[0];
+        var mosaic_chkbox = $('#' + id).is(':checked');
+        if (mosaic_chkbox) {
+            $('#' + base_name + '-mosaic-timedim-options').show();
+        } else {
+            $('#' + base_name + '-mosaic-timedim-options').hide();
+        }
+    };
+    
+    LayerInfo.prototype.doImageMosaicTimedimPresentationOptionsToggle = function (event) {
+        var target = event.target || event.srcElement;
+        var id = target.id;
+        var base_name = id.split('-')[0];
+        var mosaic_chkbox = $('#' + id).is(':checked');
+        if (mosaic_chkbox) {
+            $('#' + base_name + '-mosaic-timedim-presentation-options').show();
+        } else {
+            $('#' + base_name + '-mosaic-timedim-presentation-options').hide();
+        }
+    };
+    
+    LayerInfo.prototype.doImageMosaicGranuleOptionsToggle = function (event) {
+        var target = event.target || event.srcElement;
+        var id = target.id;
+        var base_name = id.split('-')[0];
+        var mosaic_chkbox = $('#' + id).is(':checked');
+        if (mosaic_chkbox) {
+            $('#' + base_name + '-mosaic-granule-format-options').show();
+            
+            var dropdown = $('#' + base_name + '-mosaic-granule-format-select');
+            // Clear drop down list
+            $(dropdown).empty();
+            $("<option />", {
+                val: '',
+                text: 'Select one Mosaic layer ...',
+                selected: 'selected'
+            }).appendTo(dropdown);
+            // Fill drop down list with new data
+            $(json_mosaics).each(function () {
+                $("<option />", {
+                    val: this.name,
+                    text: this.name
+                }).appendTo(dropdown);
+            });
+            
+        } else {
+            $('#' + base_name + '-mosaic-granule-format-options').hide();
+            $('#' + base_name + '-timedim').prop("checked", false);
+            $('#' + base_name + '-timedim').prop("disabled", false);
+            $('#' + base_name + '-mosaic-timedim-options').hide();
+            $('#' + base_name + '-timedim-presentation').prop("checked", false);
+            $('#' + base_name + '-timedim-presentation').prop("disabled", false);
+            $('#' + base_name + '-mosaic-timedim-presentation-options').hide();
+            $('#' + base_name + '-timedim-format-select').val($('#' + base_name + '-timedim-format-select option:first').val());
+            $('#' + base_name + '-timedim-format-select').prop("disabled", false);
+        }
+    };
+    
+    LayerInfo.prototype.doImageMosaicGranuleLayerSelect = function (event) {
+        var target = event.target || event.srcElement;
+        var id = target.id;
+        var val = target.value;
+        var base_name = id.split('-')[0];
+        if (val !== '') {
+            $(json_mosaics).each(function () {
+                if (this.name === val) {
+                    if (this.has_time === "True") {
+                        $('#' + base_name + '-timedim').prop("checked", true);
+                        $('#' + base_name + '-timedim').prop("disabled", true);
+                        $('#' + base_name + '-mosaic-timedim-options').show();
+                        $('#' + base_name + '-timedim-presentation').prop("checked", false);
+                        $('#' + base_name + '-timedim-presentation').prop("disabled", true);
+                        $('#' + base_name + '-mosaic-timedim-presentation-options').hide();
+                        $('#' + base_name + '-timedim-format-select').val(this.time_regex);
+                        $('#' + base_name + '-timedim-format-select').prop("disabled", true);
+                    }
+                    else {
+                        $('#' + base_name + '-timedim').prop("checked", false);
+                        $('#' + base_name + '-timedim').prop("disabled", false);
+                        $('#' + base_name + '-mosaic-timedim-options').hide();
+                        $('#' + base_name + '-timedim-presentation').prop("checked", false);
+                        $('#' + base_name + '-timedim-presentation').prop("disabled", false);
+                        $('#' + base_name + '-mosaic-timedim-presentation-options').hide();
+                        $('#' + base_name + '-timedim-format-select').val($('#' + base_name + '-timedim-format-select option:first').val());
+                        $('#' + base_name + '-timedim-format-select').prop("disabled", false);
+                    }
+                }
+            });
+        }
+    };
+    
     return LayerInfo;
 });
 

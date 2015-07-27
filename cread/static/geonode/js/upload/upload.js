@@ -223,10 +223,26 @@ define(['underscore',
         var files = layers[Object.keys(layers)[0]]['files'];
         var types = [];
         for (var i = 0; i<files.length; i++){
+            var base_name = files[i].name.split('.')[0];
             var ext = files[i].name.split('.').pop().toLowerCase();
             if ($.inArray(ext,types) == -1){
                 types.push(ext);
             }
+
+            var mosaic_is_valid = true;
+            var is_granule = $('#' + base_name + '-mosaic').is(':checked');
+            var is_time_valid = $('#' + base_name + '-timedim').is(':checked') && !$('#' + base_name + '-timedim-value-valid').is(':visible');
+
+            /* -- DISABLED in order to allow pure Spatial Mosaics
+            if (is_granule) {
+               mosaic_is_valid = is_time_valid;
+            }
+            */
+
+            if (is_granule && !mosaic_is_valid) {
+               return false;
+            }
+
         }
         var matched = false;
         for (var file_type in fileTypes){
