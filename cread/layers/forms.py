@@ -16,5 +16,6 @@ class CReadLayerForm(LayerForm):
         model = Layer
         exclude = LayerForm.Meta.exclude + (
             'title',
-            'abstract',)
+            'abstract',
+            'is_published')
         widgets = autocomplete_light.get_widgets_dict(Layer)

@@ -156,12 +156,12 @@ def cread_upload_geo(request, template='cread_upload_geo.html'):
 
 @login_required
 def layer_metadata_update(request, layername, template='layers/cread_layer_metadata_update.html'):
-    return layer_metadata_create(request, layername, template=template)
+    return layer_metadata_create(request, layername, template=template, publish=None)
 
 
 @login_required
-def layer_metadata_create(request, layername, template='layers/cread_layer_metadata.html'):
-    logger.debug("*** ENTER CREAD:layer_metadata_create")
+def layer_metadata_create(request, layername, template='layers/cread_layer_metadata.html', publish=False):
+    logger.debug("*** ENTER CREAD:layer_metadata_create (pub=%s)", publish)
 
     layer = _resolve_layer(
         request,
@@ -324,6 +324,13 @@ def layer_metadata_create(request, layername, template='layers/cread_layer_metad
                 title=baseinfo_form.cleaned_data['title'],
                 abstract=baseinfo_form.cleaned_data['abstract']
                 )
+
+            if publish is not None:
+                logger.debug("Setting publish status to %s for layer %s", publish, layername)
+
+                Layer.objects.filter(id=the_layer.id).update(
+                    is_published=publish
+                    )
 
             return HttpResponseRedirect(
                 reverse(

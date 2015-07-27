@@ -19,9 +19,11 @@ from tastypie.utils.mime import build_content_type
 from guardian.shortcuts import get_objects_for_user
 
 from geonode.base.models import ResourceBase
+from geonode.layers.models import Layer
 
 from geonode.api.api import TypeFilteredResource
 from geonode.api.resourcebase_api import ResourceBaseResource, CommonMetaApi, LayerResource, DocumentResource
+
 from cread.base.models import CReadCategory, CReadResource
 
 
@@ -147,6 +149,7 @@ RESPONSE_VALUES = [
     'thumbnail_url',
     'detail_url',
     'rating',
+    'is_published',
 ]
 
 
@@ -216,12 +219,29 @@ class CReadResourceBaseResource(ResourceBaseResource):
 
         return orm_filters
 
+    def apply_filters(self, request, applicable_filters):
+        filtered = super(CReadResourceBaseResource, self).apply_filters(request, applicable_filters)
+
+        # allow staff and superuser to retrieve all the resources
+        if settings.RESOURCE_PUBLISHING and not request.user.is_staff:
+            filtered = filtered.filter(is_published=True)
+
+        return filtered
+
     def dehydrate(self, bundle):
         _add_category_info(bundle.obj.id, bundle.data)
         return bundle
 
     def create_response(self, request, data, response_class=HttpResponse, **response_kwargs):
         return _create_response(self, request, data, response_class, **response_kwargs)
+
+    class Meta(CommonMetaApi):
+        queryset = ResourceBase.objects.polymorphic_queryset() \
+            .distinct().order_by('-date')
+        #if settings.RESOURCE_PUBLISHING:
+            #queryset = queryset.filter(is_published=True)
+        resource_name = 'base'
+        excludes = ['csw_anytext', 'metadata_xml']
 
 
 class CReadResourceResource(ModelResource):
@@ -242,7 +262,7 @@ class CReadResourceResource(ModelResource):
 
         return super(CReadResourceResource, self).serialize(request, data, format, options)
 
-    class Meta:
+    class Meta(CommonMetaApi):
         queryset = CReadResource.objects.all()
         resource_name = 'cread_resources'
         allowed_methods = ['get']
@@ -265,12 +285,28 @@ class CReadLayerResource(LayerResource):
 
         return orm_filters
 
+    def apply_filters(self, request, applicable_filters):
+        filtered = super(CReadLayerResource, self).apply_filters(request, applicable_filters)
+
+        # allow staff and superuser to retrieve all the resources
+        if settings.RESOURCE_PUBLISHING and not request.user.is_staff:
+            filtered = filtered.filter(is_published=True)
+
+        return filtered
+
     def dehydrate(self, bundle):
         _add_category_info(bundle.obj.id, bundle.data)
         return bundle
 
     def create_response(self, request, data, response_class=HttpResponse, **response_kwargs):
         return _create_response(self, request, data, response_class, **response_kwargs)
+
+    class Meta(CommonMetaApi):
+        queryset = Layer.objects.distinct().order_by('-date')
+        #if settings.RESOURCE_PUBLISHING:
+            #queryset = queryset.filter(is_published=True)
+        resource_name = 'layers'
+        excludes = ['csw_anytext', 'metadata_xml']
 
 
 class CReadDocumentResource(DocumentResource):
@@ -284,6 +320,15 @@ class CReadDocumentResource(DocumentResource):
             orm_filters['creadresource__category_id__in'] = filters.getlist('cread_category_id__in')
 
         return orm_filters
+
+    def apply_filters(self, request, applicable_filters):
+        filtered = super(CReadDocumentResource, self).apply_filters(request, applicable_filters)
+
+        # allow staff and superuser to retrieve all the resources
+        if settings.RESOURCE_PUBLISHING and not request.user.is_staff:
+            filtered = filtered.filter(is_published=True)
+
+        return filtered
 
     def dehydrate(self, bundle):
         _add_category_info(bundle.obj.id, bundle.data)
