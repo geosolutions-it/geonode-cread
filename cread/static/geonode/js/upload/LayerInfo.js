@@ -583,10 +583,34 @@ define(function (require, exports) {
              }
         });
         
+        $('#' + this.name + '-timedim-defaultvalue-format-select').on('change', function() {
+             var input = $(this);
+
+			 var base_name = this.name.split('-')[0];
+             
+             if (input.val() === 'NEAREST' || input.val() === 'FIXED') {
+                $('#' + base_name + '-mosaic-timedim-defaultvalue-res-options').show();
+             } else {
+                $('#' + base_name + '-mosaic-timedim-defaultvalue-res-options').hide();
+             }
+        });        
+        
         $('#' + this.name + '-timedim-value').on('input', function() {
            var input = $(this);
            	
            var re = new RegExp(time_re_txt, "g");
+           var is_valid = re.test(input.val());
+           if(is_valid){
+		      $('#' + this.name + '-valid').hide();
+		   } else {
+		      $('#' + this.name + '-valid').show();
+	       }
+        });
+        
+        $('#' + this.name + '-timedim-defaultvalue-ref-value').on('input', function() {
+           var input = $(this);
+
+           var re = /(\d{4})-(\d{2})-(\d{2})T(\d{2})\:(\d{2})\:(\d{2})[+-](\d{2})\:(\d{2})/;
            var is_valid = re.test(input.val());
            if(is_valid){
 		      $('#' + this.name + '-valid').hide();
