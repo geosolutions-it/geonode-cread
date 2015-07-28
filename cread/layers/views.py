@@ -6,8 +6,12 @@ import logging
 import shutil
 import traceback
 
+from guardian.shortcuts import get_perms
+
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
+from django.db.models import F
+
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.conf import settings
@@ -28,7 +32,16 @@ from geonode.layers.utils import file_upload
 from geonode.people.forms import ProfileForm
 
 from geonode.layers.views import _resolve_layer
-from geonode.layers.views import _PERMISSION_MSG_METADATA
+from geonode.layers.views import _PERMISSION_MSG_METADATA, _PERMISSION_MSG_VIEW
+
+from geonode.utils import resolve_object, llbbox_to_mercator
+from geonode.utils import GXPLayer
+from geonode.utils import GXPMap
+from geonode.utils import default_map_config
+from geonode.utils import build_social_links
+
+from geonode.security.views import _perms_info_json
+from geonode.documents.models import get_related_documents
 
 from cread.base.models import CReadResource, CReadCategory, CReadSubCategory
 from cread.base.forms import CReadSubCategoryForm, CReadBaseInfoForm
@@ -380,6 +393,131 @@ def layer_metadata_create(request, layername, template='layers/cread_layer_metad
         "cread_sub_form": cread_subcategory_form,
         "cread_categories": categories_struct
     }))
+
+
+def layer_detail(request, layername, template=None):
+
+    if template:
+        logger.warning('Template param not expected: %s', template)
+
+    layer = _resolve_layer(
+        request,
+        layername,
+        'base.view_resourcebase',
+        _PERMISSION_MSG_VIEW)
+
+    # assert False, str(layer_bbox)
+    config = layer.attribute_config()
+
+    # Add required parameters for GXP lazy-loading
+    layer_bbox = layer.bbox
+    bbox = [float(coord) for coord in list(layer_bbox[0:4])]
+    srid = layer.srid
+
+    # Transform WGS84 to Mercator.
+    config["srs"] = srid if srid != "EPSG:4326" else "EPSG:900913"
+    config["bbox"] = llbbox_to_mercator([float(coord) for coord in bbox])
+
+    config["title"] = layer.title
+    config["queryable"] = True
+
+    if layer.storeType == "remoteStore":
+        service = layer.service
+        source_params = {
+            "ptype": service.ptype,
+            "remote": True,
+            "url": service.base_url,
+            "name": service.name}
+        maplayer = GXPLayer(
+            name=layer.typename,
+            ows_url=layer.ows_url,
+            layer_params=json.dumps(config),
+            source_params=json.dumps(source_params))
+    else:
+        maplayer = GXPLayer(
+            name=layer.typename,
+            ows_url=layer.ows_url,
+            layer_params=json.dumps(config))
+
+    # Update count for popularity ranking,
+    # but do not includes admins or resource owners
+    if request.user != layer.owner and not request.user.is_superuser:
+        Layer.objects.filter(
+            id=layer.id).update(popular_count=F('popular_count') + 1)
+
+    # center/zoom don't matter; the viewer will center on the layer bounds
+    map_obj = GXPMap(projection="EPSG:900913")
+    NON_WMS_BASE_LAYERS = [
+        la for la in default_map_config()[1] if la.ows_url is None]
+
+    metadata = layer.link_set.metadata().filter(
+        name__in=settings.DOWNLOAD_FORMATS_METADATA)
+
+    context_dict = {
+        "resource": layer,
+        'perms_list': get_perms(request.user, layer.get_self_resource()),
+        "permissions_json": _perms_info_json(layer),
+        "documents": get_related_documents(layer),
+        "metadata": metadata,
+        "is_layer": True,
+        "wps_enabled": settings.OGC_SERVER['default']['WPS_ENABLED'],
+        "is_owner": request.user == layer.owner,
+        "is_superuser": request.user.is_superuser,
+    }
+
+    context_dict["viewer"] = json.dumps(
+        map_obj.viewer_json(request.user, * (NON_WMS_BASE_LAYERS + [maplayer])))
+    context_dict["preview"] = getattr(
+        settings,
+        'LAYER_PREVIEW_LIBRARY',
+        'leaflet')
+
+    if request.user.has_perm('download_resourcebase', layer.get_self_resource()):
+        if layer.storeType == 'dataStore':
+            links = layer.link_set.download().filter(
+                name__in=settings.DOWNLOAD_FORMATS_VECTOR)
+        else:
+            links = layer.link_set.download().filter(
+                name__in=settings.DOWNLOAD_FORMATS_RASTER)
+        context_dict["links"] = links
+
+    if settings.SOCIAL_ORIGINS:
+        context_dict["social_links"] = build_social_links(request, layer)
+
+    if request.user.is_superuser:
+        logger.debug("Dispatching to admin page")
+    else:
+        logger.debug("Dispatching to user page")
+
+    template = 'layers/layer_detail_admin.html' if request.user.is_superuser else 'layers/layer_detail_user.html'
+
+    return render_to_response(template, RequestContext(request, context_dict))
+
+
+@login_required
+def layer_publish(request, layername, template=None):
+    return _change_published_status(request, layername, True)
+
+
+@login_required
+def layer_unpublish(request, layername, template=None):
+    return _change_published_status(request, layername, False)
+
+
+def _change_published_status(request, layername, published):
+    layer = _resolve_layer(
+        request,
+        layername,
+        'base.change_resourcebase_metadata',
+        _PERMISSION_MSG_METADATA)
+
+    # let's restrict auth to superuser only
+    if not request.user.is_superuser:
+        return HttpResponse("Not allowed", status=403)
+
+    Layer.objects.filter(id=layer.id).update(is_published=published)
+
+    return layer_detail(request, layername)
 
 
 def _preprocess_fields(form):

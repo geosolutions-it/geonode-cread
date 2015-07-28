@@ -282,3 +282,15 @@ fieldset#cread_subcategory_form {
     font-size: 14px;
     color: red;
 }
+
+.btn-cread-action {
+  color: #fff;
+  background-color: #339900;
+  border-color: #339900;
+}
+
+.btn-cread-action2 {
+  color: #fff;
+  background-color: #A52A2A;
+  border-color: #A52A2A;
+}
