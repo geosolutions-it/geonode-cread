@@ -243,7 +243,7 @@ define(['underscore',
             var default_value = $('#' + base_name + '-timedim-defaultvalue-format-select').val();
             
             if (default_value == 'NEAREST' || default_value == 'FIXED') {
-                var is_reference_value_valid = is_adv_options_enabled && !$('#' + base_name + '-timedim-defaultvalue-format-select').is(':visible')
+                var is_reference_value_valid = is_adv_options_enabled && !$('#' + base_name + '-timedim-defaultvalue-ref-value-valid').is(':visible')
                 mosaic_is_valid = is_time_valid && is_reference_value_valid;
             }
             
