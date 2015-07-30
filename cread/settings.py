@@ -63,10 +63,11 @@ LOCALE_PATHS = (
     os.path.join(LOCAL_ROOT, 'locale'),
     ) + LOCALE_PATHS
 
-GEONODE_APPS = (
+CREAD_APPS = (
     'cread.base',
-    ) + GEONODE_APPS
+    'cread.maptemplates',
+    )
 
-INSTALLED_APPS = (
-    'cread.base',
-    ) + INSTALLED_APPS
+GEONODE_APPS = CREAD_APPS + GEONODE_APPS
+
+INSTALLED_APPS = CREAD_APPS + INSTALLED_APPS

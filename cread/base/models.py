@@ -12,6 +12,9 @@ class CReadCategory(models.Model):
     name = models.CharField(max_length=32, unique=True)
     description = models.TextField(default='')
 
+    def __str__(self):
+        return self.description
+
     class Meta:
         ordering = ("identifier",)
         db_table = 'cread_category'
@@ -29,6 +32,9 @@ class CReadSubCategory(models.Model):
     category = models.ForeignKey(CReadCategory, null=False, blank=False, help_text=issue_help_text)
 
     relatedtopic = models.ForeignKey(TopicCategory, null=False, help_text=related_help_text)
+
+    def __str__(self):
+        return self.description
 
     class Meta:
         ordering = ("identifier",)
