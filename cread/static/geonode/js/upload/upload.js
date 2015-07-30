@@ -231,16 +231,24 @@ define(['underscore',
 
             var mosaic_is_valid = true;
             var is_granule = $('#' + base_name + '-mosaic').is(':checked');
-            var is_time_valid = $('#' + base_name + '-timedim').is(':checked') && !$('#' + base_name + '-timedim-value-valid').is(':visible');
+            
+            var is_time_enabled = $('#' + base_name + '-timedim').is(':checked');
+            var is_time_valid = is_time_enabled && !$('#' + base_name + '-timedim-value-valid').is(':visible');
 
-            /* -- DISABLED in order to allow pure Spatial Mosaics
-            if (is_granule) {
-               mosaic_is_valid = is_time_valid;
+            if (is_granule && is_time_enabled) {
+                mosaic_is_valid = is_time_valid;
             }
-            */
 
+            var is_adv_options_enabled = $('#' + base_name + '-timedim-presentation').is(':checked');
+            var default_value = $('#' + base_name + '-timedim-defaultvalue-format-select').val();
+            
+            if (default_value == 'NEAREST' || default_value == 'FIXED') {
+                var is_reference_value_valid = is_adv_options_enabled && !$('#' + base_name + '-timedim-defaultvalue-format-select').is(':visible')
+                mosaic_is_valid = is_time_valid && is_reference_value_valid;
+            }
+            
             if (is_granule && !mosaic_is_valid) {
-               return false;
+                return false;
             }
 
         }
@@ -351,7 +359,7 @@ define(['underscore',
         }
         var checked = checkFiles();
         if ($.isEmptyObject(layers) || !checked) {
-            alert(gettext('You are uploading an incomplete set of files.'));
+            alert(gettext('You are trying to uploadi an incomplete set of files or not all mandatory options have been validated.\n\nPlease check for errors in the form!'));
         } else {
             $.each(layers, function (name, layerinfo) {
                 layerinfo.uploadFiles();

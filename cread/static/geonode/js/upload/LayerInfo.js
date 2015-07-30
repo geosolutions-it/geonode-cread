@@ -101,16 +101,16 @@ define(function (require, exports) {
      */
     LayerInfo.prototype.collectErrors = function () {
         var errors = [];
-		
+
 		var mosaic_is_valid = true;
 		var is_granule = $('#' + this.name + '-mosaic').is(':checked');
-		var is_time_valid = $('#' + this.name + '-timedim').is(':checked') && !$('#' + this.name + '-timedim-value-valid').is(':visible');
+        
+        var is_time_enabled = $('#' + this.name + '-timedim').is(':checked');
+		var is_time_valid = is_time_enabled && !$('#' + this.name + '-timedim-value-valid').is(':visible');
 
-		/* -- DISABLED in order to allow pure Spatial Mosaics
-        if (is_granule) {
+        if (is_granule && is_time_enabled) {
 			mosaic_is_valid = is_time_valid;
 		}
-        */
 
 		if (is_granule && !mosaic_is_valid) {
 			errors.push('The configuration of the file as a Mosaic Granule is not valid, please fix the issue and try again');
@@ -199,6 +199,8 @@ define(function (require, exports) {
                     var time_presentation_opts = $('#' + this.main.name.slice(0, -4) + '-timedim-presentation').is(':checked');
                     var time_presentation = "LIST";
                     var time_presentation_res = 0;
+                    var time_presentation_default_value = "";
+                    var time_presentation_reference_value = "";
                     if (time_presentation_opts) {
                         time_presentation = $('#' + this.main.name.slice(0, -4) + '-timedim-presentation-format-select').val();
                         
@@ -218,6 +220,12 @@ define(function (require, exports) {
                             // Seconds
                             time_presentation_res += parseInt( $('#' + this.main.name.slice(0, -4) + '-timedim-presentation-seconds').val() ) * 1000;
                         }
+                        
+                        time_presentation_default_value = $('#' + this.main.name.slice(0, -4) + '-timedim-defaultvalue-format-select').val();
+                        
+                        if (time_presentation_default_value == 'NEAREST' || time_presentation_default_value == 'FIXED') {
+                            time_presentation_reference_value = $('#' + this.main.name.slice(0, -4) + '-timedim-defaultvalue-ref-value').val();
+                        }
                     }
 
                     //console.log("time_presentation:" + time_presentation + " / time_presentation_res:" + time_presentation_res);
@@ -227,6 +235,9 @@ define(function (require, exports) {
                     
                     form_data.append('time_presentation', time_presentation);
                     form_data.append('time_presentation_res', time_presentation_res);
+                    
+                    form_data.append('time_presentation_default_value', time_presentation_default_value);
+                    form_data.append('time_presentation_reference_value', time_presentation_reference_value);
                 }
                 
 				form_data.append('append_to_mosaic_opts', append_to_mosaic_opts);
