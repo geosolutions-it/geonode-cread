@@ -3,6 +3,7 @@
 {% load dialogos_tags %}
 {% load agon_ratings_tags %}
 {% load bootstrap_tags %}
+{% load pagination_tags %}
 {% load url from future %}
 {% load base_tags %}
 {% load guardian_tags %}
@@ -50,7 +51,103 @@
 
     {% include "base/resourcebase_info_panel.html" %}
 
+     {% if resource.is_mosaic %}
+      <article id="granules" class="description tab-pane {% if tab and tab == 'granules' %}active{% endif %}">
+        <div class="paginate-contents">
+        
+            <form method="GET" action="{% url "layer_detail" resource.layer.service_typename %}">
+                {% csrf_token %}
+                <input type="text" id="filter" name="filter" style="witdh:400px"/>&nbsp;<input type="submit" value="Filter Granules"/>
+                </br>
+                {% if filter %}
+                <strong>Active Filter:</strong> <em>{{ filter }}</em>
+                {% endif %}
+            </form>
+            <table class="table table-striped table-bordered table-condensed">
+              <thead>
+                <tr>
+                  <!-- th>{% trans "Granule ID" %}</th -->
+                  <th>Bounding Box (minX,minY,maxX,maxY)</th>
+                  <th>Time</th>
+                  <!-- th>{% trans "Elevation" %}</th -->
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% autopaginate all_granules.features 10 %}
+                {% for feature in granules.features %}
+                  <tr>
+                    <!-- td>{{ feature.id }}</td -->
+                    <td><script language="Javascript">var bbox = JSON.parse('{{ feature.geometry.coordinates }}'); document.write(bbox[0][0][0] + ',' + bbox[0][0][1] + ',' + bbox[0][2][0] + ',' + bbox[0][2][1]);</script></td>
+                    <td>{% if feature.properties.time %}{{ feature.properties.time }}{% endif %}</td>
+                    <!-- td>{% if feature.properties.elevation %}{{ feature.properties.elevation }}{% endif %}</td -->
+                    <td>
+                        <a class="btn btn-xs" href="#" onclick="doPreview('{{ resource.service_typename }}', '{{ feature.id }}', '{{ feature.geometry.coordinates }}', {% if feature.properties.time %}'{{ feature.properties.time }}'{% else %}null{% endif %});"><img alt="Granule Preview" title="Granule Preview" src="/static/lib/img/map_go.png"/></a>
+                        <a class="btn btn-xs" href="{% url "layer_granule_remove" feature.id resource.service_typename %}"><img alt="Granule Remove" title="Granule Remove" src="/static/lib/img/cancel-on.png"/></a>
+                        <script language="Javascript">
+                            function doPreview(layer_name, feature_id, the_geom, time) {
+                                var map = app.mapPanel.map;
+                                for (var ll = 0; ll < app.map.layers.length; ll++) {
+                                    var layer = app.map.layers[ll];
+                                    if (layer.name == layer_name) {
+                                      /*
+                                        if (time) {
+                                            var re = new RegExp("(\\+[0-9]{4})", "gm");
+                                            var timePosition = time;
+                                            if (re.test(time)) timePosition = time.replace(re, 'Z');
+                                            map.layers[ll].mergeNewParams({"TIME" : timePosition});
+                                        }
+                                        
+                                        if (feature_id) {
+                                            map.layers[ll].mergeNewParams({"featureid" : feature_id});
+                                        }
+                                      */
+                                      
+                                        if (feature_id) {
+                                            map.layers[ll].mergeNewParams({"CQL_FILTER" : "IN ('" + feature_id + "')"});
+                                        }
+                                        
+                                        bbox = JSON.parse(the_geom);
+                                        map.bbox = [bbox[0][0][0],bbox[0][0][1],bbox[0][2][0],bbox[0][2][1]];
+                                        map.zoomToExtent([bbox[0][0][0],bbox[0][0][1],bbox[0][2][0],bbox[0][2][1]]);
+                                    }
+                                }
+                            }
+                        </script>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+        </div>
+        {% paginate %}
+      </article>
+     {% endif %}
+    
       <article id="attributes" class="tab-pane">
+        {% if resource.is_mosaic %}
+            <table class="table table-striped table-bordered table-condensed">
+              <thead>
+                <tr>
+                  <th>{% trans "Dimension" %}</th>
+                  <th>{% trans "Enabled" %}</th>
+                  <th>{% trans "Regex" %}</th>
+                </tr>
+              </thead>
+              <tbody>
+                  <tr>
+                    <td title="TIME">TIME</td>
+                    <td>{% if resource.has_time %}True{% else %}False{% endif %}</td>
+                    <td>{% if resource.time_regex %}{{ resource.time_regex }}{% else %}&nbsp;{% endif %}</td>
+                  </tr>
+                  <!-- tr>
+                    <td title="ELEVATION">ELEVATION</td>
+                    <td>{% if resource.has_elevation %}True{% else %}False{% endif %}</td>
+                    <td>{% if resource.elevation_regex %}{{ resource.elevation_regex }}{% else %}&nbsp;{% endif %}</td>
+                  </tr -->
+              </tbody>
+            </table>
+        {% endif %}
         {% if resource.attribute_set.all %}
             <table class="table table-striped table-bordered table-condensed">
               <thead>

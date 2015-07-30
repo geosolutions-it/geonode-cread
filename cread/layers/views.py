@@ -42,7 +42,7 @@ from geonode.utils import build_social_links
 
 from geonode.security.views import _perms_info_json
 from geonode.documents.models import get_related_documents
-
+from geonode.geoserver.helpers import cascading_delete, gs_catalog
 from cread.base.models import CReadResource, CReadCategory, CReadSubCategory
 from cread.base.forms import CReadSubCategoryForm, CReadBaseInfoForm
 from cread.layers.forms import CReadLayerForm
@@ -453,6 +453,32 @@ def layer_detail(request, layername, template=None):
     metadata = layer.link_set.metadata().filter(
         name__in=settings.DOWNLOAD_FORMATS_METADATA)
 
+    granules = None
+    all_granules = None
+    filter = None
+    if layer.is_mosaic:
+        cat = gs_catalog
+        cat._cache.clear()
+        store = cat.get_store(layer.name)
+        coverages = cat.mosaic_coverages(store)
+        filter = None
+        try:
+            if request.GET["filter"]:
+                filter = request.GET["filter"]
+        except:
+            pass
+            
+        try:
+            schema = cat.mosaic_coverage_schema(coverages['coverages']['coverage'][0]['name'], store)
+            offset = request.page - 1
+            granules = cat.mosaic_granules(coverages['coverages']['coverage'][0]['name'], store, limit=10, offset=offset, filter=filter)
+            all_granules = cat.mosaic_granules(coverages['coverages']['coverage'][0]['name'], store, filter=filter)
+        except:
+            granules = {"features":[]}
+            all_granules = {"features":[]}
+
+        #print (' +++++++++++++++++++++++++++++++++++++++++ \n' + str(granules) + '\n +++++++++++++++++++++++++++++++++++++++++ ')
+
     context_dict = {
         "resource": layer,
         'perms_list': get_perms(request.user, layer.get_self_resource()),
@@ -463,6 +489,9 @@ def layer_detail(request, layername, template=None):
         "wps_enabled": settings.OGC_SERVER['default']['WPS_ENABLED'],
         "is_owner": request.user == layer.owner,
         "is_superuser": request.user.is_superuser,
+        "granules": granules,
+        "all_granules": all_granules,
+        "filter": filter,
     }
 
     context_dict["viewer"] = json.dumps(
