@@ -9,6 +9,8 @@
         <button class="btn btn-default btn-xs pull-right" ng-click="feature_select($event)">Select</button>
         {% endif %}{% verbatim %}
         <h4><a href="{{ item.detail_url }}">{{ item.title }}</a></h4>
+        <span ng-if="!item.is_published" class="resource-not-published">NOT PUBLISHED</br></span>
+
         <p>
           <span ng-if="item.cread_category_description"    class="cread_category">{{ item.cread_category_description }} <br/></span>
           <span ng-if="item.cread_subcategory_description" class="cread_subcategory">{{ item.cread_subcategory_description }} <br/></span>

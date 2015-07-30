@@ -2,6 +2,8 @@
 {% load i18n %}
 {% load bootstrap_tags %}
 
+{% block layer_post_action %}{% url "cread_layer_metadata_update" layer.service_typename %}{% endblock %}
+
 {% block stage_column %}
 
     <div class="col-md-3">
