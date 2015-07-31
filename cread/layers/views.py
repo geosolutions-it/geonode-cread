@@ -36,6 +36,8 @@ from geonode.utils import GXPMap
 from geonode.utils import default_map_config
 from geonode.utils import build_social_links
 
+from geonode.base.enumerations import CHARSETS
+
 from geonode.security.views import _perms_info_json
 from geonode.documents.models import get_related_documents
 from geonode.geoserver.helpers import cascading_delete, gs_catalog
