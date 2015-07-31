@@ -29,6 +29,7 @@ else:
 layer_patterns = layer_patterns + patterns(
     'geonode.layers.views',
     url(r'^layers/$', TemplateView.as_view(template_name='layers/layer_list.html'), name='layer_browse'),
+    url(r'^layers/upload$', 'layer_upload', name='layer_upload'),
     )
 
 
