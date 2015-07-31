@@ -144,6 +144,7 @@
   form_target = "{{ UPLOADER_URL }}",
   geogig_enabled = {{ GEOGIG_ENABLED|lower  }},
   time_enabled = {{ TIME_ENABLED|lower  }},
+  mosaic_enabled = false,
   userLookup = "{% url "geonode.views.ajax_lookup" %}"
 
 {% endautoescape %}

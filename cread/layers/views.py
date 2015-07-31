@@ -8,6 +8,7 @@ import traceback
 
 from guardian.shortcuts import get_perms
 
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.db.models import F
@@ -50,10 +51,6 @@ from cread.layers.forms import CReadLayerForm
 
 ALLOWED_DOC_TYPES = settings.ALLOWED_DOCUMENT_TYPES
 
-_PERMISSION_MSG_GENERIC = _('You do not have permissions for this document.')
-
-logger = logging.getLogger("geonode.layers.views")
-
 CONTEXT_LOG_FILE = None
 
 if 'geonode.geoserver' in settings.INSTALLED_APPS:
@@ -61,10 +58,64 @@ if 'geonode.geoserver' in settings.INSTALLED_APPS:
     from geonode.geoserver.helpers import ogc_server_settings
     CONTEXT_LOG_FILE = ogc_server_settings.LOG_FILE
 
+logger = logging.getLogger("geonode.layers.views")
+
+DEFAULT_SEARCH_BATCH_SIZE = 10
+MAX_SEARCH_BATCH_SIZE = 25
+GENERIC_UPLOAD_ERROR = _("There was an error while attempting to upload your data. \
+Please try again, or contact and administrator if the problem continues.")
+
+_PERMISSION_MSG_DELETE = _("You are not permitted to delete this layer")
+_PERMISSION_MSG_GENERIC = _('You do not have permissions for this layer.')
+_PERMISSION_MSG_MODIFY = _("You are not permitted to modify this layer")
+_PERMISSION_MSG_METADATA = _(
+    "You are not permitted to modify this layer's metadata")
+_PERMISSION_MSG_VIEW = _("You are not permitted to view this layer")
+
+
+def log_snippet(log_file):
+    if not os.path.isfile(log_file):
+        return "No log file at %s" % log_file
+
+    with open(log_file, "r") as f:
+        f.seek(0, 2)  # Seek @ EOF
+        fsize = f.tell()  # Get Size
+        f.seek(max(fsize - 10024, 0), 0)  # Set pos @ last n chars
+        return f.read()
+
+
+def _resolve_layer(request, typename, permission='base.view_resourcebase',
+                   msg=_PERMISSION_MSG_GENERIC, **kwargs):
+    """
+    Resolve the layer by the provided typename (which may include service name) and check the optional permission.
+    """
+    service_typename = typename.split(":", 1)
+
+    if Service.objects.filter(name=service_typename[0]).exists():
+        service = Service.objects.filter(name=service_typename[0])
+        layer_obj = resolve_object(request,
+                              Layer,
+                              {'service': service[0],
+                               'typename': service_typename[1] if service[0].method != "C" else typename},
+                              permission=permission,
+                              permission_msg=msg,
+                              **kwargs)
+    else:
+        layer_obj = resolve_object(request,
+                              Layer,
+                              {'typename': typename,
+                               'service': None},
+                              permission=permission,
+                              permission_msg=msg,
+                              **kwargs)
+
+    return layer_obj
+
+# Basic Layer Views #
+
 
 @login_required
 def cread_upload_geo(request, template='cread_upload_geo.html'):
-#def layer_upload(request, template='upload/layer_upload.html'):
     logger.debug("*** ENTER cread_upload_geo")
 
     if request.method == 'GET':
@@ -166,7 +217,102 @@ def cread_upload_geo(request, template='cread_upload_geo.html'):
             mimetype='application/json',
             status=status_code)
 
+@login_required
+def cread_upload_mosaics(request, template='cread_upload_mosaics.html'):
+    if request.method == 'GET':
+        mosaics = Layer.objects.filter(is_mosaic=True).order_by('name')
+        ctx = {
+            'mosaics' : mosaics,
+            'charsets': CHARSETS,
+            'is_layer': True,
+        }
+        return render_to_response(template,
+                                  RequestContext(request, ctx))
+    elif request.method == 'POST':
+        form = NewLayerUploadForm(request.POST, request.FILES)
+        tempdir = None
+        errormsgs = []
+        out = {'success': False}
 
+        if form.is_valid():
+            title = form.cleaned_data["layer_title"]
+
+            # Replace dots in filename - GeoServer REST API upload bug
+            # and avoid any other invalid characters.
+            # Use the title if possible, otherwise default to the filename
+            if title is not None and len(title) > 0:
+                name_base = title
+            else:
+                name_base, __ = os.path.splitext(
+                    form.cleaned_data["base_file"].name)
+
+            name = slugify(name_base.replace(".", "_"))
+
+            try:
+                # Moved this inside the try/except block because it can raise
+                # exceptions when unicode characters are present.
+                # This should be followed up in upstream Django.
+                tempdir, base_file = form.write_files()
+                saved_layer = file_upload(
+                    base_file,
+                    name=name,
+                    user=request.user,
+                    overwrite=False,
+                    charset=form.cleaned_data["charset"],
+                    abstract=form.cleaned_data["abstract"],
+                    title=form.cleaned_data["layer_title"],
+                )
+
+            except Exception as e:
+                exception_type, error, tb = sys.exc_info()
+                logger.exception(e)
+                out['success'] = False
+                out['errors'] = str(error)
+                # Assign the error message to the latest UploadSession from that user.
+                latest_uploads = UploadSession.objects.filter(user=request.user).order_by('-date')
+                if latest_uploads.count() > 0:
+                    upload_session = latest_uploads[0]
+                    upload_session.error = str(error)
+                    upload_session.traceback = traceback.format_exc(tb)
+                    upload_session.context = log_snippet(CONTEXT_LOG_FILE)
+                    upload_session.save()
+                    out['traceback'] = upload_session.traceback
+                    out['context'] = upload_session.context
+                    out['upload_session'] = upload_session.id
+            else:
+                out['success'] = True
+                if hasattr(saved_layer, 'info'):
+                    out['info'] = saved_layer.info
+                out['url'] = reverse(
+                    'layer_detail', args=[
+                        saved_layer.service_typename])
+
+                upload_session = saved_layer.upload_session
+                upload_session.processed = True
+                upload_session.save()
+                permissions = form.cleaned_data["permissions"]
+                if permissions is not None and len(permissions.keys()) > 0:
+                    saved_layer.set_permissions(permissions)
+
+            finally:
+                if tempdir is not None:
+                    shutil.rmtree(tempdir)
+        else:
+            for e in form.errors.values():
+                errormsgs.extend([escape(v) for v in e])
+
+            out['errors'] = form.errors
+            out['errormsgs'] = errormsgs
+
+        if out['success']:
+            status_code = 200
+        else:
+            status_code = 400
+        return HttpResponse(
+            json.dumps(out),
+            mimetype='application/json',
+            status=status_code)
+            
 @login_required
 def layer_metadata_update(request, layername, template='layers/cread_layer_metadata_update.html'):
     return layer_metadata_create(request, layername, template=template, publish=None)
