@@ -83,34 +83,6 @@ def log_snippet(log_file):
         f.seek(max(fsize - 10024, 0), 0)  # Set pos @ last n chars
         return f.read()
 
-
-def _resolve_layer(request, typename, permission='base.view_resourcebase',
-                   msg=_PERMISSION_MSG_GENERIC, **kwargs):
-    """
-    Resolve the layer by the provided typename (which may include service name) and check the optional permission.
-    """
-    service_typename = typename.split(":", 1)
-
-    if Service.objects.filter(name=service_typename[0]).exists():
-        service = Service.objects.filter(name=service_typename[0])
-        layer_obj = resolve_object(request,
-                              Layer,
-                              {'service': service[0],
-                               'typename': service_typename[1] if service[0].method != "C" else typename},
-                              permission=permission,
-                              permission_msg=msg,
-                              **kwargs)
-    else:
-        layer_obj = resolve_object(request,
-                              Layer,
-                              {'typename': typename,
-                               'service': None},
-                              permission=permission,
-                              permission_msg=msg,
-                              **kwargs)
-
-    return layer_obj
-
 # Basic Layer Views #
 
 
