@@ -153,6 +153,9 @@ define(function (require, exports) {
     LayerInfo.prototype.prepareFormData = function (form_data) {
         var i, ext, file, perm, geogig, geogig_store, time, mosaic;
 
+		var base_ext  = this.main.name.split('.').pop();
+		var base_name = this.main.name.slice(0, -(base_ext.length+1));
+
         if (!form_data) {
             form_data = new FormData();
         }
@@ -165,9 +168,9 @@ define(function (require, exports) {
         }
 
         if (geogig_enabled) {
-            geogig = $('#' + this.main.name.slice(0, -4) + '\\:geogig_toggle').is(':checked');
+            geogig = $('#' + base_name + '\\:geogig_toggle').is(':checked');
             if (geogig) {
-                geogig_store = $('#' + this.main.name.slice(0, -4) + '\\:geogig_store').val();
+                geogig_store = $('#' + base_name + '\\:geogig_store').val();
                 form_data.append('geogig_store', geogig_store);
             } else {
                 form_data.append('geogig_store', "");
@@ -175,56 +178,56 @@ define(function (require, exports) {
             form_data.append('geogig', geogig);
         }
         if (time_enabled) {
-            time = $('#' + this.main.name.slice(0, -4) + '-time').is(':checked');
+            time = $('#' + base_name + '-time').is(':checked');
             form_data.append('time', time);
         }
         if (mosaic_enabled) {
-            mosaic = $('#' + this.main.name.slice(0, -4) + '-mosaic').is(':checked');
-			var is_time_valid = $('#' + this.main.name.slice(0, -4) + '-timedim').is(':checked') && !$('#' + this.main.name.slice(0, -4) + '-timedim-value-valid').is(':visible');
+            mosaic = $('#' + base_name + '-mosaic').is(':checked');
+			var is_time_valid = $('#' + base_name + '-timedim').is(':checked') && !$('#' + base_name + '-timedim-value-valid').is(':visible');
 
 			if (mosaic /*&& is_time_valid*/) {
 				form_data.append('mosaic', mosaic);
 
-				var append_to_mosaic_opts = $('#' + this.main.name.slice(0, -4) + '-mosaic-granule').is(':checked');
-				var append_to_mosaic_name = $('#' + this.main.name.slice(0, -4) + '-mosaic-granule-format-select').val();
+				var append_to_mosaic_opts = $('#' + base_name + '-mosaic-granule').is(':checked');
+				var append_to_mosaic_name = $('#' + base_name + '-mosaic-granule-format-select').val();
 
 				//console.log("append_to_mosaic_opts:" + append_to_mosaic_opts + " / append_to_mosaic_name:" + append_to_mosaic_name);
 
                 if (is_time_valid) {
-                    var time_regex = $('#' + this.main.name.slice(0, -4) + '-timedim-format-select').val();
-                    var time_value = $('#' + this.main.name.slice(0, -4) + '-timedim-value').val();
+                    var time_regex = $('#' + base_name + '-timedim-format-select').val();
+                    var time_value = $('#' + base_name + '-timedim-value').val();
 
                     //console.log("time_regex:" + time_regex + " / time_value:" + time_value);
                     
-                    var time_presentation_opts = $('#' + this.main.name.slice(0, -4) + '-timedim-presentation').is(':checked');
+                    var time_presentation_opts = $('#' + base_name + '-timedim-presentation').is(':checked');
                     var time_presentation = "LIST";
                     var time_presentation_res = 0;
                     var time_presentation_default_value = "";
                     var time_presentation_reference_value = "";
                     if (time_presentation_opts) {
-                        time_presentation = $('#' + this.main.name.slice(0, -4) + '-timedim-presentation-format-select').val();
+                        time_presentation = $('#' + base_name + '-timedim-presentation-format-select').val();
                         
                         if (time_presentation === 'DISCRETE_INTERVAL') {
                             // Years
-                            time_presentation_res += parseInt( $('#' + this.main.name.slice(0, -4) + '-timedim-presentation-years').val() ) * 31536000000;
+                            time_presentation_res += parseInt( $('#' + base_name + '-timedim-presentation-years').val() ) * 31536000000;
                             // Months
-                            time_presentation_res += parseInt( $('#' + this.main.name.slice(0, -4) + '-timedim-presentation-months').val() ) * 2628000000;
+                            time_presentation_res += parseInt( $('#' + base_name + '-timedim-presentation-months').val() ) * 2628000000;
                             // Weeks
-                            time_presentation_res += parseInt( $('#' + this.main.name.slice(0, -4) + '-timedim-presentation-weeks').val() ) * 604800000;
+                            time_presentation_res += parseInt( $('#' + base_name + '-timedim-presentation-weeks').val() ) * 604800000;
                             // Days
-                            time_presentation_res += parseInt( $('#' + this.main.name.slice(0, -4) + '-timedim-presentation-days').val() ) * 86400000;
+                            time_presentation_res += parseInt( $('#' + base_name + '-timedim-presentation-days').val() ) * 86400000;
                             // Hours
-                            time_presentation_res += parseInt( $('#' + this.main.name.slice(0, -4) + '-timedim-presentation-hours').val() ) * 3600000;
+                            time_presentation_res += parseInt( $('#' + base_name + '-timedim-presentation-hours').val() ) * 3600000;
                             // Minutes
-                            time_presentation_res += parseInt( $('#' + this.main.name.slice(0, -4) + '-timedim-presentation-minutes').val() ) * 60000;
+                            time_presentation_res += parseInt( $('#' + base_name + '-timedim-presentation-minutes').val() ) * 60000;
                             // Seconds
-                            time_presentation_res += parseInt( $('#' + this.main.name.slice(0, -4) + '-timedim-presentation-seconds').val() ) * 1000;
+                            time_presentation_res += parseInt( $('#' + base_name + '-timedim-presentation-seconds').val() ) * 1000;
                         }
                         
-                        time_presentation_default_value = $('#' + this.main.name.slice(0, -4) + '-timedim-defaultvalue-format-select').val();
+                        time_presentation_default_value = $('#' + base_name + '-timedim-defaultvalue-format-select').val();
                         
                         if (time_presentation_default_value == 'NEAREST' || time_presentation_default_value == 'FIXED') {
-                            time_presentation_reference_value = $('#' + this.main.name.slice(0, -4) + '-timedim-defaultvalue-ref-value').val();
+                            time_presentation_reference_value = $('#' + base_name + '-timedim-defaultvalue-ref-value').val();
                         }
                     }
 
