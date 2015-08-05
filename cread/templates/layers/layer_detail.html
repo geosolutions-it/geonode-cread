@@ -79,38 +79,37 @@
                 {% for feature in granules.features %}
                   <tr>
                     <!-- td>{{ feature.id }}</td -->
-                    <td><script language="Javascript">var bbox = JSON.parse('{{ feature.geometry.coordinates }}'); document.write(bbox[0][0][0] + ',' + bbox[0][0][1] + ',' + bbox[0][2][0] + ',' + bbox[0][2][1]);</script></td>
+                    <td><script language="Javascript">var bbox = JSON.parse('{{ feature.geometry.coordinates }}'); document.write('{{ granules.crs.properties.name }};' + bbox[0][0][0] + ',' + bbox[0][0][1] + ',' + bbox[0][2][0] + ',' + bbox[0][2][1]);</script></td>
                     <td>{% if feature.properties.time %}{{ feature.properties.time }}{% endif %}</td>
                     <!-- td>{% if feature.properties.elevation %}{{ feature.properties.elevation }}{% endif %}</td -->
                     <td>
-                        <a class="btn btn-xs" href="#" onclick="doPreview('{{ resource.service_typename }}', '{{ feature.id }}', '{{ feature.geometry.coordinates }}', {% if feature.properties.time %}'{{ feature.properties.time }}'{% else %}null{% endif %});"><img alt="Granule Preview" title="Granule Preview" src="/static/lib/img/map_go.png"/></a>
+                        <a class="btn btn-xs" href="#" onclick="doPreview('{{ resource.service_typename }}', '{{ feature.id }}', '{{ granules.crs.properties.name }}', '{{ feature.geometry.coordinates }}', {% if feature.properties.time %}'{{ feature.properties.time }}'{% else %}null{% endif %});"><img alt="Granule Preview" title="Granule Preview" src="/static/lib/img/map_go.png"/></a>
                         <a class="btn btn-xs" href="{% url "layer_granule_remove" feature.id resource.service_typename %}"><img alt="Granule Remove" title="Granule Remove" src="/static/lib/img/cancel-on.png"/></a>
                         <script language="Javascript">
-                            function doPreview(layer_name, feature_id, the_geom, time) {
+                            function doPreview(layer_name, feature_id, srs, the_geom, time) {
                                 var map = app.mapPanel.map;
                                 for (var ll = 0; ll < app.map.layers.length; ll++) {
                                     var layer = app.map.layers[ll];
                                     if (layer.name == layer_name) {
-                                      /*
                                         if (time) {
                                             var re = new RegExp("(\\+[0-9]{4})", "gm");
                                             var timePosition = time;
                                             if (re.test(time)) timePosition = time.replace(re, 'Z');
-                                            map.layers[ll].mergeNewParams({"TIME" : timePosition});
+                                            map.layers[ll].mergeNewParams({"TIME" : timePosition, "CQL_FILTER" : "IN ('" + feature_id + "')"});
                                         }
-                                        
-                                        if (feature_id) {
-                                            map.layers[ll].mergeNewParams({"featureid" : feature_id});
-                                        }
-                                      */
-                                      
-                                        if (feature_id) {
+                                        else {
                                             map.layers[ll].mergeNewParams({"CQL_FILTER" : "IN ('" + feature_id + "')"});
                                         }
-                                        
+
                                         bbox = JSON.parse(the_geom);
-                                        map.bbox = [bbox[0][0][0],bbox[0][0][1],bbox[0][2][0],bbox[0][2][1]];
-                                        map.zoomToExtent([bbox[0][0][0],bbox[0][0][1],bbox[0][2][0],bbox[0][2][1]]);
+                                        bbox = new OpenLayers.Bounds(bbox[0][0][0],bbox[0][0][1],bbox[0][2][0],bbox[0][2][1]).transform(srs, map.projection);
+                                        
+                                        //map.maxExtent = bbox;
+                                        //map.restrictedExtent = bbox;
+                                        map.maxExtent = new OpenLayers.Bounds(-20037508.34,-20037508.34,20037508.34,20037508.34);
+                                        map.restrictedExtent = map.maxExtent;
+
+                                        map.zoomToExtent(bbox);
                                     }
                                 }
                             }
