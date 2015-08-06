@@ -101,6 +101,10 @@
                                             map.layers[ll].mergeNewParams({"CQL_FILTER" : "IN ('" + feature_id + "')"});
                                         }
 
+                                        map.layers[ll].addOptions({
+                                            singleTile: true
+                                        });
+                                        
                                         bbox = JSON.parse(the_geom);
                                         bbox = new OpenLayers.Bounds(bbox[0][0][0],bbox[0][0][1],bbox[0][2][0],bbox[0][2][1]).transform(srs, map.projection);
                                         
