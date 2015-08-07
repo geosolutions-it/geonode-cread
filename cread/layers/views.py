@@ -491,7 +491,7 @@ def layer_detail(request, layername, template=None):
             
         try:
             schema = cat.mosaic_coverage_schema(coverages['coverages']['coverage'][0]['name'], store)
-            offset = request.page - 1
+            offset = 10 * (request.page - 1)
             granules = cat.mosaic_granules(coverages['coverages']['coverage'][0]['name'], store, limit=10, offset=offset, filter=filter)
             all_granules = cat.mosaic_granules(coverages['coverages']['coverage'][0]['name'], store, filter=filter)
         except:
