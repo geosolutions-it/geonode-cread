@@ -65,4 +65,9 @@ urlpatterns = patterns(
         url(r'^maptemplate/(?P<template_id>[^/]*)/chooselayers$', 'choose_layers', name="maptemplate_choose_layers"),
         #url(r'^maptemplate/metadata_create$', 'metadata_create', name="maptemplate_metadata_create"),
 
+    ) + patterns(
+        'cread.maps.views',  # py file name
+        url(r'^maps/(?P<mapid>\d+)/publish$', 'publish', name='cread_map_publish'),
+        url(r'^maps/(?P<mapid>\d+)/unpublish$', 'unpublish', name='cread_map_unpublish'),
+
     ) + urlpatterns

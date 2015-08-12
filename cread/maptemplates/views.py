@@ -191,6 +191,11 @@ def create_from_layer_list(user, layers, title, abstract):
 
     DEFAULT_BASE_LAYERS = settings.MAP_BASELAYERS
 
+    is_published = True
+    if settings.RESOURCE_PUBLISHING:
+        is_published = False
+    newmap.is_published = is_published
+
     # Save the map in order to create an id in the database
     # used below for the maplayers.
     newmap.save()
