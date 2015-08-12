@@ -38,21 +38,31 @@ urlpatterns = patterns(
         url(r'^/?$', TemplateView.as_view(template_name='site_index.html'), name='home'),
         url(r'^cread-upload/$', TemplateView.as_view(template_name='cread_upload.html'), name='cread_upload'),
         url(r'^cread-upload/doc/$', login_required(CreadDocumentUploadView.as_view()), name='cread_upload_doc'),
+        url(r'', include(api.urls)),
+        url(r'', include(override_api.urls)),
+
     ) + layer_patterns + patterns(
         'cread.layers.views',  # py file name
         url(r'^cread-upload/geo/$', 'cread_upload_geo', name='cread_upload_geo'),
         url(r'^cread-upload/mosaics/$', 'cread_upload_mosaics', name='cread_upload_mosaics'),
-        #url(r'^upload$', 'layer_upload', name='layer_upload'),
         url(r'^layers/(?P<layername>[^/]*)/cread_metadata_update$', 'layer_metadata_update', name="cread_layer_metadata_update"),
         url(r'^layers/(?P<layername>[^/]*)/cread_metadata_create$', 'layer_metadata_create', name="cread_layer_metadata_create"),
         url(r'^layers/(?P<layername>[^/]*)/publish$', 'layer_publish', name="cread_layer_publish"),
         url(r'^layers/(?P<layername>[^/]*)/unpublish$', 'layer_unpublish', name="cread_layer_unpublish"),
         url(r'^layers/(?P<layername>[^/]*)$', 'layer_detail', name="layer_detail"),  # override
+
     ) + patterns(
         'cread.documents.views',  # py file name
+        url(r'^documents/(?P<docid>\d+)/?$', 'document_detail', name='document_detail'),
         url(r'^documents/(?P<docid>\d+)/metadata$', 'document_metadata', name='cread_document_metadata'),  # override
 
-        url(r'', include(api.urls)),
-        url(r'', include(override_api.urls)),
-        
+        url(r'^documents/(?P<docid>\d+)/publish$', 'publish', name='cread_document_publish'),
+        url(r'^documents/(?P<docid>\d+)/unpublish$', 'unpublish', name='cread_document_unpublish'),
+
+    #) + patterns(
+        #'cread.maptemplates.views',  # py file name
+        #url(r'^maptemplate/choosetemplate$', 'choose_template', name='maptemplate_choose_template'),
+        #url(r'^maptemplate/(?P<template_id>[^/]*)/chooselayers$', 'choose_layers', name="maptemplate_choose_layers"),
+        ##url(r'^maptemplate/metadata_create$', 'metadata_create', name="maptemplate_metadata_create"),
+
     ) + urlpatterns

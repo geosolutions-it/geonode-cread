@@ -20,6 +20,7 @@ from guardian.shortcuts import get_objects_for_user
 
 from geonode.base.models import ResourceBase
 from geonode.layers.models import Layer
+from geonode.documents.models import Document
 
 from geonode.api.api import TypeFilteredResource
 from geonode.api.resourcebase_api import ResourceBaseResource, CommonMetaApi, LayerResource, DocumentResource
@@ -336,3 +337,9 @@ class CReadDocumentResource(DocumentResource):
 
     def create_response(self, request, data, response_class=HttpResponse, **response_kwargs):
         return _create_response(self, request, data, response_class, **response_kwargs)
+
+    class Meta(CommonMetaApi):
+        filtering = CommonMetaApi.filtering
+        filtering.update({'doc_type': ALL})
+        queryset = Document.objects.distinct().order_by('-date')
+        resource_name = 'documents'

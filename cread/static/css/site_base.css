@@ -294,3 +294,7 @@ fieldset#cread_subcategory_form {
   background-color: #A52A2A;
   border-color: #A52A2A;
 }
+
+.errorlist li {
+    color: red;
+}
