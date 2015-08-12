@@ -59,10 +59,10 @@ urlpatterns = patterns(
         url(r'^documents/(?P<docid>\d+)/publish$', 'publish', name='cread_document_publish'),
         url(r'^documents/(?P<docid>\d+)/unpublish$', 'unpublish', name='cread_document_unpublish'),
 
-    #) + patterns(
-        #'cread.maptemplates.views',  # py file name
-        #url(r'^maptemplate/choosetemplate$', 'choose_template', name='maptemplate_choose_template'),
-        #url(r'^maptemplate/(?P<template_id>[^/]*)/chooselayers$', 'choose_layers', name="maptemplate_choose_layers"),
-        ##url(r'^maptemplate/metadata_create$', 'metadata_create', name="maptemplate_metadata_create"),
+    ) + patterns(
+        'cread.maptemplates.views',  # py file name
+        url(r'^maptemplate/choosetemplate$', 'choose_template', name='maptemplate_choose_template'),
+        url(r'^maptemplate/(?P<template_id>[^/]*)/chooselayers$', 'choose_layers', name="maptemplate_choose_layers"),
+        #url(r'^maptemplate/metadata_create$', 'metadata_create', name="maptemplate_metadata_create"),
 
     ) + urlpatterns

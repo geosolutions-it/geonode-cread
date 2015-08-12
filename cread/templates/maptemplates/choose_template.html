@@ -1,0 +1,107 @@
+{% extends "site_base.html" %}
+{% load i18n %}
+{% load staticfiles %}
+{% load url from future %}
+
+{% block title %} {% trans "Create Map"  %} - {{ block.super }}  {% endblock %}
+
+{% block body_class %}map create{% endblock %}
+
+{% block head %} {{ block.super }} {% endblock %}
+
+{% block body_outer %}
+<div class="page-header">
+    <h2 class="page-title">{% trans "Create Map" %}</h2>
+</div>
+
+<div class="row">
+    <div class="col-md-3">
+        <ul>
+        <li><b>1. Choose template</b></li>
+        <li>2. Choose required layers</li>
+        <li>3. Edit metadata</li>
+        <li>4. View map </li>
+        <li>5. Wait for publication </li>
+        </ul>
+
+        Select a template for the thematic map to be created.
+
+        <br/><br/>
+        <i>
+        <p>
+        In order to create a map you have to choose a thematic map template.
+        A map template sets the requirements for a map to have at least some layers related to
+        specific categories.
+        </p>
+        <p>
+        ...
+        </p>
+        </i>
+    </div>
+
+  <div class="col-md-9">
+
+    {% block additional_info %}{% endblock %}
+
+    {% if errors %}
+    <div id="errors" class="alert alert-danger">
+      {% for error in errors %}
+      <p>{{ error }}</p>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+        <div class="row">
+            <div class="col-md-9  form-controls form-group" >
+                <label class="control-label required-field">{% trans "Available templates" %}</label>
+
+                <fieldset id="cread_subcategory_form">
+                {% autoescape off %}
+
+                    {% for template in maptemplates %}
+
+                    <div class="row">
+                        <div class="col-md-6" >
+                            <div class="radio col-md-12 cread-metadata-subcategory">
+                                <a href="{% url 'maptemplate_choose_layers' template_id=template.id %}">
+                                    {{ template.name }}
+                                </a>
+                            </div>
+                         </div>
+                        <div class="col-md-6" >
+                            {{ template.description }}
+                        </div>
+                    </div>
+
+                {% endfor %}
+                {% endautoescape %}
+                </fieldset>
+            </div>
+        </div>
+
+
+<!--
+    <div id="cread-upload-button-panel">
+        <section>
+          <a href="#" id="clear-button" class="btn btn-default">{% trans "Next" %}</a>
+        </section>
+    </div>
+  </div>
+-->
+
+</div>
+{% endblock %}
+
+
+{% block extra_script %}
+<script type="text/javascript">
+{% autoescape off %}
+
+  csrf_token =  "{{ csrf_token }}",
+  form_target = "{{ UPLOADER_URL }}",
+
+{% endautoescape %}
+
+</script>
+
+{% endblock extra_script %}
