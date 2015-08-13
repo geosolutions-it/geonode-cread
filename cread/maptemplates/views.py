@@ -87,7 +87,7 @@ def choose_layers(request, template_id, template='maptemplates/choose_layers.htm
 
             newmap = map_create(request, maptemplate.id, layer_ids)
             return HttpResponseRedirect(
-                reverse('map_detail',
+                reverse('cread_map_metadata',
                     kwargs={'mapid': newmap.id}))
 
                 #reverse(

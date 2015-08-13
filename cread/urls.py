@@ -53,7 +53,7 @@ urlpatterns = patterns(
 
     ) + patterns(
         'cread.documents.views',  # py file name
-        url(r'^documents/(?P<docid>\d+)/?$', 'document_detail', name='document_detail'),
+        url(r'^documents/(?P<docid>\d+)/?$', 'document_detail', name='document_detail'),  # override
         url(r'^documents/(?P<docid>\d+)/metadata$', 'document_metadata', name='cread_document_metadata'),  # override
 
         url(r'^documents/(?P<docid>\d+)/publish$', 'publish', name='cread_document_publish'),
@@ -67,6 +67,8 @@ urlpatterns = patterns(
 
     ) + patterns(
         'cread.maps.views',  # py file name
+        url(r'^maps/(?P<mapid>\d+)/metadata$', 'map_metadata', name='cread_map_metadata'),  # override
+
         url(r'^maps/(?P<mapid>\d+)/publish$', 'publish', name='cread_map_publish'),
         url(r'^maps/(?P<mapid>\d+)/unpublish$', 'unpublish', name='cread_map_unpublish'),
 
