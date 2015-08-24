@@ -72,8 +72,10 @@ msgstr ""
 msgid "You are not allowed to view this map."
 msgstr ""
 
-#: templates/cread_upload.html:7 templates/site_index.html:79
+#: templates/cread_upload.html:7 templates/cread_upload_geo.html:23
+#: templates/cread_upload_mosaics.html:39 templates/site_index.html:79
 #: templates/site_index.html.py:80
+#: templates/layers/cread_layer_metadata.html:12
 msgid "Upload data"
 msgstr ""
 
@@ -85,8 +87,8 @@ msgstr ""
 msgid "Upload Data"
 msgstr ""
 
-#: templates/cread_upload.html:19 templates/site_index.html:27
-msgid "Welcome"
+#: templates/cread_upload.html:19
+msgid "Welcome C-READ site"
 msgstr ""
 
 #: templates/cread_upload.html:20 templates/site_index.html:28
@@ -112,12 +114,24 @@ msgstr ""
 msgid "Upload geographic data"
 msgstr ""
 
+#: templates/cread_upload.html:48
+msgid "Geographic data"
+msgstr ""
+
 #: templates/cread_upload.html:56 templates/cread_upload.html.py:57
 msgid "Upload documents"
 msgstr ""
 
+#: templates/cread_upload.html:60
+msgid "Textual data (or other non-geographic data)"
+msgstr ""
+
 #: templates/cread_upload.html:68
 msgid "Thematic map"
+msgstr ""
+
+#: templates/cread_upload.html:71
+msgid "Create a themtic map"
 msgstr ""
 
 #: templates/cread_upload.html:84 templates/cread_upload_geo.html:102
@@ -128,8 +142,17 @@ msgstr ""
 msgid "Toggle"
 msgstr ""
 
+#: templates/cread_upload.html:85 templates/cread_upload_geo.html:103
+#: templates/cread_upload_mosaics.html:119
+msgid "Advanced options"
+msgstr ""
+
 #: templates/cread_upload.html:91
 msgid "Upload mosaics"
+msgstr ""
+
+#: templates/cread_upload.html:94
+msgid "Mosaics"
 msgstr ""
 
 #: templates/cread_upload_doc.html:5
@@ -153,9 +176,24 @@ msgstr ""
 msgid "Upload Layer"
 msgstr ""
 
+#: templates/cread_upload_geo.html:7 templates/cread_upload_mosaics.html:7
+msgid "layers upload"
+msgstr ""
+
 #: templates/cread_upload_geo.html:17 templates/cread_upload_mosaics.html:17
 #: templates/layers/layer_list.html:12
 msgid "Upload Layers"
+msgstr ""
+
+#: templates/cread_upload_geo.html:24 templates/cread_upload_mosaics.html:40
+#: templates/layers/cread_layer_metadata.html:13
+#: templates/layers/cread_layer_metadata_update.html:11
+msgid "Edit metadata"
+msgstr ""
+
+#: templates/cread_upload_geo.html:25 templates/cread_upload_mosaics.html:41
+#: templates/layers/cread_layer_metadata.html:14
+msgid "Publish"
 msgstr ""
 
 #: templates/cread_upload_geo.html:49 templates/cread_upload_mosaics.html:65
@@ -216,10 +254,6 @@ msgstr ""
 msgid "Upload files"
 msgstr ""
 
-#: templates/cread_upload_mosaics.html:119
-msgid "Advanced options"
-msgstr ""
-
 #: templates/site_base.html:26
 msgid "Home"
 msgstr ""
@@ -263,6 +297,10 @@ msgstr ""
 
 #: templates/site_index.html:6
 msgid "Welcome!"
+msgstr ""
+
+#: templates/site_index.html:27
+msgid "Welcome"
 msgstr ""
 
 #: templates/site_index.html:48 templates/site_index.html.py:57
@@ -537,16 +575,46 @@ msgstr ""
 msgid "Display Order"
 msgstr ""
 
+#: templates/layers/layer_detail.html:60
+#: templates/layers/layer_detail_admin.html:60
+#: templates/layers/layer_detail_user.html:60
+msgid "Filter Granules"
+msgstr ""
+
+#: templates/layers/layer_detail.html:63
+#: templates/layers/layer_detail_admin.html:63
+#: templates/layers/layer_detail_user.html:63
+msgid "Active Filter:"
+msgstr ""
+
 #: templates/layers/layer_detail.html:69
 #: templates/layers/layer_detail_admin.html:69
 #: templates/layers/layer_detail_user.html:69
 msgid "Granule ID"
 msgstr ""
 
+#: templates/layers/layer_detail.html:70
+#: templates/layers/layer_detail_admin.html:70
+#: templates/layers/layer_detail_user.html:70
+msgid "Bounding Box"
+msgstr ""
+
+#: templates/layers/layer_detail.html:71
+#: templates/layers/layer_detail_admin.html:71
+#: templates/layers/layer_detail_user.html:71
+msgid "Time"
+msgstr ""
+
 #: templates/layers/layer_detail.html:72
 #: templates/layers/layer_detail_admin.html:72
 #: templates/layers/layer_detail_user.html:72
 msgid "Elevation"
+msgstr ""
+
+#: templates/layers/layer_detail.html:73
+#: templates/layers/layer_detail_admin.html:73
+#: templates/layers/layer_detail_user.html:73
+msgid "Actions"
 msgstr ""
 
 #: templates/layers/layer_detail.html:135
@@ -565,6 +633,34 @@ msgstr ""
 #: templates/layers/layer_detail_admin.html:137
 #: templates/layers/layer_detail_user.html:137
 msgid "Regex"
+msgstr ""
+
+#: templates/layers/layer_detail.html:142
+#: templates/layers/layer_detail_admin.html:142
+#: templates/layers/layer_detail_user.html:142
+msgid "TIME"
+msgstr ""
+
+#: templates/layers/layer_detail.html:143
+#: templates/layers/layer_detail_admin.html:143
+#: templates/layers/layer_detail_admin.html:148
+#: templates/layers/layer_detail_user.html:143
+#: templates/layers/layer_detail_user.html:148
+msgid "True"
+msgstr ""
+
+#: templates/layers/layer_detail.html:143
+#: templates/layers/layer_detail_admin.html:143
+#: templates/layers/layer_detail_admin.html:148
+#: templates/layers/layer_detail_user.html:143
+#: templates/layers/layer_detail_user.html:148
+msgid "False"
+msgstr ""
+
+#: templates/layers/layer_detail.html:147
+#: templates/layers/layer_detail_admin.html:147
+#: templates/layers/layer_detail_user.html:147
+msgid "ELEVATION"
 msgstr ""
 
 #: templates/layers/layer_detail.html:158
@@ -764,6 +860,11 @@ msgstr ""
 #: templates/layers/layer_detail_admin.html:466
 #: templates/layers/layer_detail_user.html:466
 msgid "Type"
+msgstr ""
+
+#: templates/layers/layer_detail_admin.html:86
+#: templates/layers/layer_detail_user.html:86
+msgid "Granule Remove"
 msgstr ""
 
 #: templates/layers/layer_list.html:6 templates/layers/layer_list.html:13
