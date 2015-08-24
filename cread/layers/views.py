@@ -495,14 +495,17 @@ def layer_detail(request, layername, template='layers/layer_detail.html'):
 
             schema = cat.mosaic_coverage_schema(coverages['coverages']['coverage'][0]['name'], store)
             offset = 10 * (request.page - 1)
-            granules = cat.mosaic_granules(coverages['coverages']['coverage'][0]['name'], store, limit=10, offset=offset, filter=filter)
-            all_granules = cat.mosaic_granules(coverages['coverages']['coverage'][0]['name'], store, filter=filter)
+            granules = cat.mosaic_granules(coverages['coverages']['coverage'][0]['name'], store, limit=10, offset=offset, filter=granule_filter)
+            all_granules = cat.mosaic_granules(coverages['coverages']['coverage'][0]['name'], store, filter=granule_filter)
 
         except:
             granules = {"features": []}
             all_granules = {"features": []}
 
-            #print (' +++++++++++++++++++++++++++++++++++++++++ \n' + str(granules) + '\n +++++++++++++++++++++++++++++++++++++++++ ')
+            import traceback
+            traceback.print_exc()
+
+        #print (' +++++++++++++++++++++++++++++++++++++++++ \n' + str(granules) + '\n +++++++++++++++++++++++++++++++++++++++++ ')
 
     context_dict = {
         "resource": layer,
