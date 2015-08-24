@@ -51,7 +51,6 @@
 
     {% include "base/resourcebase_info_panel.html" %}
 
-    {% if user.is_authenticated %}
      {% if resource.is_mosaic %}
       <article id="granules" class="description tab-pane {% if tab and tab == 'granules' %}active{% endif %}">
         <div class="paginate-contents">
@@ -127,8 +126,7 @@
         {% paginate %}
       </article>
      {% endif %}
-    {% endif %}
-
+    
       <article id="attributes" class="tab-pane">
         {% if resource.is_mosaic %}
             <table class="table table-striped table-bordered table-condensed">

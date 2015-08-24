@@ -54,7 +54,7 @@
      {% if resource.is_mosaic %}
       <article id="granules" class="description tab-pane {% if tab and tab == 'granules' %}active{% endif %}">
         <div class="paginate-contents">
-        
+
             <form method="GET" action="{% url "layer_detail" resource.layer.service_typename %}">
                 {% csrf_token %}
                 <input type="text" id="filter" name="filter" style="witdh:400px"/>&nbsp;<input type="submit" value="Filter Granules"/>
@@ -99,14 +99,14 @@
                                         else {
                                             map.layers[ll].mergeNewParams({"CQL_FILTER" : "IN ('" + feature_id + "')"});
                                         }
-                                        
+
                                         map.layers[ll].addOptions({
                                             singleTile: true
                                         });
 
                                         bbox = JSON.parse(the_geom);
                                         bbox = new OpenLayers.Bounds(bbox[0][0][0],bbox[0][0][1],bbox[0][2][0],bbox[0][2][1]).transform(srs, map.projection);
-                                        
+
                                         //map.maxExtent = bbox;
                                         //map.restrictedExtent = bbox;
                                         map.maxExtent = new OpenLayers.Bounds(-20037508.34,-20037508.34,20037508.34,20037508.34);
@@ -246,6 +246,12 @@
               <a class="btn btn-cread-action btn-md btn-block" href="{% url "cread_layer_publish" resource.service_typename %}">{% trans "Publish Layer" %}</a>
            {% endif %}
         </li>
+      {% else %}
+           {% if resource.is_published %}
+              <span class="btn btn-cread-action btn-md btn-block">{% trans "Published" %}</span>
+           {% else %}
+              <span class="btn btn-cread-action2 btn-md btn-block">{% trans "Unpublished" %}</span>
+           {% endif %}
       {% endif %}
 
       {% if resource.storeType != "remoteStore" %}
@@ -398,11 +404,14 @@
           {% endfor %}
         </ul>
     </li>
+
+    {% if request.user.is_superuser %}
     <li class="list-group-item">
       <h4>{% trans "Create a map using this layer" %}</h4>
       <p>{% trans "Click the button below to generate a new map based on this layer." %}</p>
         <a href="{% url "new_map" %}?layer={{resource.service_typename}}" class="btn btn-primary btn-block">{% trans "Create a Map" %}</a>
     </li>
+    {% endif %}
 
     {% if documents.count > 0 %}
     <li class="list-group-item">
@@ -438,6 +447,7 @@
     </li>
     {% endif %}
 
+    {% if request.user.is_superuser %}
     {% if GEONODE_SECURITY_ENABLED %}
     {% if "change_resourcebase_permissions" in perms_list %}
     <li class="list-group-item">
@@ -445,6 +455,7 @@
       <p>{% trans "Click the button below to change the permissions of this layer." %}</p>
       <p><a href="#modal_perms" data-toggle="modal" class="btn btn-primary btn-block" data-target="#_permissions">{% trans "Change Layer Permissions" %}</a></p>
     </li>
+    {% endif %}
     {% endif %}
     {% endif %}
 
