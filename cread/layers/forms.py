@@ -6,6 +6,7 @@ from geonode.layers.forms import LayerForm
 from geonode.layers.models import Layer
 from geonode.base.forms import ResourceBaseForm
 
+from django.utils.translation import ugettext as _
 
 class CReadLayerForm(LayerForm):
     """

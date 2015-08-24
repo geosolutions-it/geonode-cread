@@ -57,20 +57,20 @@
 
             <form method="GET" action="{% url "layer_detail" resource.layer.service_typename %}">
                 {% csrf_token %}
-                <input type="text" id="filter" name="filter" style="witdh:400px"/>&nbsp;<input type="submit" value="Filter Granules"/>
+                <input type="text" id="filter" name="filter" style="witdh:400px"/>&nbsp;<input type="submit" value='{% trans "Filter Granules" %}'/>
                 </br>
                 {% if filter %}
-                <strong>Active Filter:</strong> <em>{{ filter }}</em>
+                <strong>{% trans "Active Filter:" %}</strong> <em>{{ filter }}</em>
                 {% endif %}
             </form>
             <table class="table table-striped table-bordered table-condensed">
               <thead>
                 <tr>
                   <!-- th>{% trans "Granule ID" %}</th -->
-                  <th>Bounding Box (minX,minY,maxX,maxY)</th>
-                  <th>Time</th>
+                  <th>{% trans "Bounding Box" %} (minX,minY,maxX,maxY)</th>
+                  <th>{% trans "Time" %}</th>
                   <!-- th>{% trans "Elevation" %}</th -->
-                  <th>Actions</th>
+                  <th>{% trans "Actions" %}</th>
                 </tr>
               </thead>
               <tbody>
@@ -83,7 +83,7 @@
                     <!-- td>{% if feature.properties.elevation %}{{ feature.properties.elevation }}{% endif %}</td -->
                     <td>
                         <a class="btn btn-xs" href="#" onclick="doPreview('{{ resource.service_typename }}', '{{ feature.id }}', '{{ granules.crs.properties.name }}', '{{ feature.geometry.coordinates }}', {% if feature.properties.time %}'{{ feature.properties.time }}'{% else %}null{% endif %});"><img alt="Granule Preview" title="Granule Preview" src="/static/lib/img/map_go.png"/></a>
-                        <a class="btn btn-xs" href="{% url "layer_granule_remove" feature.id resource.service_typename %}"><img alt="Granule Remove" title="Granule Remove" src="/static/lib/img/cancel-on.png"/></a>
+                        <a class="btn btn-xs" href="{% url "layer_granule_remove" feature.id resource.service_typename %}"><img alt='{% trans "Granule Remove" %}' title='{% trans "Granule Remove" %}' src="/static/lib/img/cancel-on.png"/></a>
                         <script language="Javascript">
                             function doPreview(layer_name, feature_id, srs, the_geom, time) {
                                 var map = app.mapPanel.map;
@@ -139,13 +139,13 @@
               </thead>
               <tbody>
                   <tr>
-                    <td title="TIME">TIME</td>
-                    <td>{% if resource.has_time %}True{% else %}False{% endif %}</td>
+                    <td title="TIME">{% trans "TIME" %}</td>
+                    <td>{% if resource.has_time %}{% trans "True" %}{% else %}{% trans "False" %}{% endif %}</td>
                     <td>{% if resource.time_regex %}{{ resource.time_regex }}{% else %}&nbsp;{% endif %}</td>
                   </tr>
                   <!-- tr>
-                    <td title="ELEVATION">ELEVATION</td>
-                    <td>{% if resource.has_elevation %}True{% else %}False{% endif %}</td>
+                    <td title="ELEVATION">{% trans "ELEVATION" %}</td>
+                    <td>{% if resource.has_elevation %}{% trans "True" %}{% else %}{% trans "False" %}{% endif %}</td>
                     <td>{% if resource.elevation_regex %}{{ resource.elevation_regex }}{% else %}&nbsp;{% endif %}</td>
                   </tr -->
               </tbody>
