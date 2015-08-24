@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-08-24 14:04-0400\n"
-"PO-Revision-Date: 2015-08-24 17:45+0200\n"
+"PO-Revision-Date: 2015-08-24 18:15+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: it\n"
@@ -109,7 +109,7 @@ msgstr "Carica dati"
 
 #: templates/cread_upload.html:19
 msgid "Welcome C-READ site"
-msgstr ""
+msgstr "Benvenuto nel sito di C-READ"
 
 #: templates/cread_upload.html:20 templates/site_index.html:28
 msgid ""
@@ -145,7 +145,7 @@ msgstr "Carica documenti"
 
 #: templates/cread_upload.html:60
 msgid "Textual data (or other non-geographic data)"
-msgstr ""
+msgstr "Dati testuali (o qualsiasi altro tipo di dato non geografico)"
 
 #: templates/cread_upload.html:68
 msgid "Thematic map"
@@ -175,7 +175,7 @@ msgstr "Carica mosaici"
 
 #: templates/cread_upload.html:94
 msgid "Mosaics"
-msgstr ""
+msgstr "Mosaici"
 
 #: templates/cread_upload_doc.html:5
 msgid "Upload Document"
@@ -200,7 +200,7 @@ msgstr "Carica Layer"
 
 #: templates/cread_upload_geo.html:7 templates/cread_upload_mosaics.html:7
 msgid "layers upload"
-msgstr ""
+msgstr "Carica Layers"
 
 #: templates/cread_upload_geo.html:17 templates/cread_upload_mosaics.html:17
 #: templates/layers/layer_list.html:12
@@ -211,12 +211,12 @@ msgstr "Carica Layers"
 #: templates/layers/cread_layer_metadata.html:13
 #: templates/layers/cread_layer_metadata_update.html:11
 msgid "Edit metadata"
-msgstr ""
+msgstr "Modifica metadati"
 
 #: templates/cread_upload_geo.html:25 templates/cread_upload_mosaics.html:41
 #: templates/layers/cread_layer_metadata.html:14
 msgid "Publish"
-msgstr ""
+msgstr "Pubblica"
 
 #: templates/cread_upload_geo.html:49 templates/cread_upload_mosaics.html:65
 msgid "Incomplete Uploads"
@@ -254,15 +254,15 @@ msgstr "Elimina, e non chiedermelo più."
 
 #: templates/cread_upload_geo.html:82 templates/cread_upload_mosaics.html:98
 msgid "Drop files here"
-msgstr ""
+msgstr "Trascina qui i files da caricare"
 
 #: templates/cread_upload_geo.html:85 templates/cread_upload_mosaics.html:101
 msgid " or select them one by one:"
-msgstr ""
+msgstr " o selezionali uno ad uno:"
 
 #: templates/cread_upload_geo.html:94 templates/cread_upload_mosaics.html:110
 msgid "Files to be uploaded"
-msgstr ""
+msgstr "Files da caricare"
 
 #: templates/cread_upload_geo.html:109 templates/cread_upload_mosaics.html:125
 msgid "Select the charset or leave default"
@@ -270,11 +270,11 @@ msgstr ""
 
 #: templates/cread_upload_geo.html:125 templates/cread_upload_mosaics.html:141
 msgid "Clear"
-msgstr ""
+msgstr "Pulisci"
 
 #: templates/cread_upload_geo.html:126 templates/cread_upload_mosaics.html:142
 msgid "Upload files"
-msgstr ""
+msgstr "Carica files"
 
 #: templates/site_base.html:26
 msgid "Home"
@@ -319,7 +319,7 @@ msgstr ""
 
 #: templates/site_index.html:6
 msgid "Welcome!"
-msgstr ""
+msgstr "Benvenuto!"
 
 #: templates/site_index.html:27
 msgid "Welcome"
@@ -364,13 +364,13 @@ msgstr[1] "#-#-#-#-#  django.pot (PACKAGE VERSION)  #-#-#-#-#\n"
 #: templates/site_index.html:88 templates/site_index.html.py:89
 #: templates/site_index.html:100 templates/site_index.html.py:101
 msgid "Search data"
-msgstr ""
+msgstr "Cerca"
 
 #: templates/documents/cread_document_metadata.html:16
 #: templates/layers/cread_layer_metadata_base.html:11
 #: templates/maps/cread_map_metadata.html:11
 msgid "Edit Metadata"
-msgstr ""
+msgstr "Modifica Metadati"
 
 #: templates/documents/cread_document_metadata.html:42
 msgid "Editing details for"
@@ -388,7 +388,7 @@ msgstr ""
 #: templates/maps/cread_map_metadata.html:71
 #: templates/maps/cread_map_metadata.html:162
 msgid "Update"
-msgstr ""
+msgstr "Aggiorna"
 
 #: templates/documents/cread_document_metadata.html:81
 #: templates/documents/cread_document_metadata.html:131
@@ -429,11 +429,11 @@ msgstr ""
 
 #: templates/documents/document_detail.html:92
 msgid "Unpublish Document"
-msgstr ""
+msgstr "Annulla Pubblicazione"
 
 #: templates/documents/document_detail.html:94
 msgid "Publish Document"
-msgstr ""
+msgstr "Pubblica Documento"
 
 #: templates/documents/document_detail.html:99
 #: templates/layers/layer_detail.html:251
@@ -441,7 +441,7 @@ msgstr ""
 #: templates/layers/layer_detail_user.html:251
 #: templates/maps/map_detail.html:81
 msgid "Published"
-msgstr ""
+msgstr "Pubblicato"
 
 #: templates/documents/document_detail.html:101
 #: templates/layers/layer_detail.html:253
@@ -449,13 +449,13 @@ msgstr ""
 #: templates/layers/layer_detail_user.html:253
 #: templates/maps/map_detail.html:83
 msgid "Unpublished"
-msgstr ""
+msgstr "Non Pubblicato"
 
 #: templates/documents/document_detail.html:108
 #: templates/documents/document_detail.html:110
 #: templates/documents/document_detail.html:112
 msgid "Download Document"
-msgstr ""
+msgstr "Scarica Documento"
 
 #: templates/documents/document_detail.html:116
 #: templates/layers/layer_detail.html:263
@@ -467,7 +467,7 @@ msgstr ""
 #: templates/documents/document_detail.html:122
 #: templates/documents/document_detail.html:129
 msgid "Edit Document"
-msgstr ""
+msgstr "Modifica Documento"
 
 #: templates/documents/document_detail.html:137
 #: templates/layers/layer_detail.html:310
@@ -527,7 +527,7 @@ msgstr ""
 #: templates/layers/layer_detail_user.html:359
 #: templates/layers/layer_detail_user.html:367
 msgid "Download Metadata"
-msgstr ""
+msgstr "Scarica Metadati"
 
 #: templates/documents/document_detail.html:187
 msgid "Resource using this document"
@@ -591,7 +591,7 @@ msgstr ""
 #: templates/layers/layer_detail_admin.html:160
 #: templates/layers/layer_detail_user.html:160
 msgid "Description"
-msgstr ""
+msgstr "Descrizione"
 
 #: templates/layers/cread_layer_metadata_base.html:115
 msgid "Display Order"
@@ -601,68 +601,67 @@ msgstr ""
 #: templates/layers/layer_detail_admin.html:60
 #: templates/layers/layer_detail_user.html:60
 msgid "Filter Granules"
-msgstr ""
+msgstr "Filtra Granuli:"
 
 #: templates/layers/layer_detail.html:63
 #: templates/layers/layer_detail_admin.html:63
 #: templates/layers/layer_detail_user.html:63
 msgid "Active Filter:"
-msgstr ""
+msgstr "Filtro corrente:"
 
 #: templates/layers/layer_detail.html:69
 #: templates/layers/layer_detail_admin.html:69
 #: templates/layers/layer_detail_user.html:69
 msgid "Granule ID"
-msgstr ""
+msgstr "ID Granulo:"
 
 #: templates/layers/layer_detail.html:70
 #: templates/layers/layer_detail_admin.html:70
 #: templates/layers/layer_detail_user.html:70
 msgid "Bounding Box"
-msgstr ""
+msgstr "Bounding Box"
 
 #: templates/layers/layer_detail.html:71
 #: templates/layers/layer_detail_admin.html:71
 #: templates/layers/layer_detail_user.html:71
 msgid "Time"
-msgstr ""
+msgstr "Tempo"
 
 #: templates/layers/layer_detail.html:72
 #: templates/layers/layer_detail_admin.html:72
 #: templates/layers/layer_detail_user.html:72
 msgid "Elevation"
-msgstr ""
+msgstr "Elevazione"
 
 #: templates/layers/layer_detail.html:73
 #: templates/layers/layer_detail_admin.html:73
 #: templates/layers/layer_detail_user.html:73
-#, fuzzy
 msgid "Actions"
-msgstr "Opzioni avanzate"
+msgstr "Azioni"
 
 #: templates/layers/layer_detail.html:135
 #: templates/layers/layer_detail_admin.html:135
 #: templates/layers/layer_detail_user.html:135
 msgid "Dimension"
-msgstr ""
+msgstr "Dimensione"
 
 #: templates/layers/layer_detail.html:136
 #: templates/layers/layer_detail_admin.html:136
 #: templates/layers/layer_detail_user.html:136
 msgid "Enabled"
-msgstr ""
+msgstr "Abilitata"
 
 #: templates/layers/layer_detail.html:137
 #: templates/layers/layer_detail_admin.html:137
 #: templates/layers/layer_detail_user.html:137
 msgid "Regex"
-msgstr ""
+msgstr "Esp. Regolare"
 
 #: templates/layers/layer_detail.html:142
 #: templates/layers/layer_detail_admin.html:142
 #: templates/layers/layer_detail_user.html:142
 msgid "TIME"
-msgstr ""
+msgstr "TEMPO"
 
 #: templates/layers/layer_detail.html:143
 #: templates/layers/layer_detail_admin.html:143
@@ -670,7 +669,7 @@ msgstr ""
 #: templates/layers/layer_detail_user.html:143
 #: templates/layers/layer_detail_user.html:148
 msgid "True"
-msgstr ""
+msgstr "Vero"
 
 #: templates/layers/layer_detail.html:143
 #: templates/layers/layer_detail_admin.html:143
@@ -678,19 +677,19 @@ msgstr ""
 #: templates/layers/layer_detail_user.html:143
 #: templates/layers/layer_detail_user.html:148
 msgid "False"
-msgstr ""
+msgstr "Falso"
 
 #: templates/layers/layer_detail.html:147
 #: templates/layers/layer_detail_admin.html:147
 #: templates/layers/layer_detail_user.html:147
 msgid "ELEVATION"
-msgstr ""
+msgstr "ELEVAZIONE"
 
 #: templates/layers/layer_detail.html:158
 #: templates/layers/layer_detail_admin.html:158
 #: templates/layers/layer_detail_user.html:158
 msgid "Attribute Name"
-msgstr ""
+msgstr "Nome Attributo"
 
 #: templates/layers/layer_detail.html:162
 #: templates/layers/layer_detail_admin.html:162
@@ -726,13 +725,13 @@ msgstr ""
 #: templates/layers/layer_detail_admin.html:244
 #: templates/layers/layer_detail_user.html:244
 msgid "Unpublish Layer"
-msgstr ""
+msgstr "Annulla Pubblicazione"
 
 #: templates/layers/layer_detail.html:246
 #: templates/layers/layer_detail_admin.html:246
 #: templates/layers/layer_detail_user.html:246
 msgid "Publish Layer"
-msgstr ""
+msgstr "Pubblica Layer"
 
 #: templates/layers/layer_detail.html:260
 #: templates/layers/layer_detail.html:273
@@ -741,7 +740,7 @@ msgstr ""
 #: templates/layers/layer_detail_user.html:260
 #: templates/layers/layer_detail_user.html:273
 msgid "Download Layer"
-msgstr ""
+msgstr "Scarica Layer"
 
 #: templates/layers/layer_detail.html:296
 #: templates/layers/layer_detail.html:303
@@ -888,7 +887,7 @@ msgstr ""
 #: templates/layers/layer_detail_admin.html:86
 #: templates/layers/layer_detail_user.html:86
 msgid "Granule Remove"
-msgstr ""
+msgstr "Elimina Granulo"
 
 #: templates/layers/layer_list.html:6 templates/layers/layer_list.html:13
 msgid "Explore Layers"
@@ -917,15 +916,15 @@ msgstr ""
 
 #: templates/maps/map_detail.html:74
 msgid "Unpublish Map"
-msgstr ""
+msgstr "Annulla Pubblicazione"
 
 #: templates/maps/map_detail.html:76
 msgid "Publish Map"
-msgstr ""
+msgstr "Pubblica Mappa"
 
 #: templates/maps/map_detail.html:89 templates/maps/map_detail.html.py:97
 msgid "Download Map"
-msgstr ""
+msgstr "Scarica Mappa"
 
 #: templates/maps/map_detail.html:101
 msgid "Download Data Layers"
@@ -953,11 +952,11 @@ msgstr ""
 
 #: templates/maps/map_detail.html:183
 msgid "Documents related to this map"
-msgstr ""
+msgstr "Documenti relativi a questa Mappa"
 
 #: templates/maps/map_detail.html:184
 msgid "List of documents related to this map:"
-msgstr ""
+msgstr "Lista dei Documenti relativi a questa Mappa:"
 
 #: templates/maps/map_detail.html:197
 msgid "Specify which users can view or modify this map"
@@ -965,7 +964,7 @@ msgstr ""
 
 #: templates/maps/map_detail.html:198
 msgid "Change Permissions of this Map"
-msgstr ""
+msgstr "Modifica i Permessi di questa Mappa"
 
 #: templates/maps/map_detail.html:205
 msgid "Copy this map"
@@ -1057,7 +1056,7 @@ msgstr ""
 
 #: templates/search/_search_content.html:7
 msgid "Clear all filters"
-msgstr ""
+msgstr "Pulisci tutti i filtri"
 
 #: templates/search/_search_content.html:16
 msgid "Categories"
