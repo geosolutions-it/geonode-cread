@@ -35,14 +35,27 @@ from django.views.generic.edit import CreateView
 from geonode.base.models import ResourceBase
 from geonode.documents.models import Document
 from geonode.documents.forms import DocumentCreateForm
+from geonode.documents.views import document_detail
+
+logger = logging.getLogger("geonode.documents.views")
 
 ALLOWED_DOC_TYPES = settings.ALLOWED_DOCUMENT_TYPES
 
 _PERMISSION_MSG_GENERIC = _('You do not have permissions for this document.')
 _PERMISSION_MSG_METADATA = _(
     "You are not permitted to modify this document's metadata")
+_PERMISSION_MSG_VIEW = _("You are not permitted to view this document")
 
-logger = logging.getLogger("geonode.documents.views")
+
+def _resolve_document(request, docid, permission='base.change_resourcebase',
+                      msg=_PERMISSION_MSG_GENERIC, **kwargs):
+    '''
+    Resolve the document by the provided primary key and check the optional permission.
+    '''
+    return resolve_object(request, Document, {'pk': docid},
+                          permission=permission, permission_msg=msg, **kwargs)
+
+
 
 CONTEXT_LOG_FILE = None
 
@@ -84,15 +97,6 @@ class CreadDocumentUploadView(CreateView):
                 args=(
                     self.object.id,
                 )))
-
-
-def _resolve_document(request, docid, permission='base.change_resourcebase',
-                      msg=_PERMISSION_MSG_GENERIC, **kwargs):
-    '''
-    Resolve the document by the provided primary key and check the optional permission.
-    '''
-    return resolve_object(request, Document, {'pk': docid},
-                          permission=permission, permission_msg=msg, **kwargs)
 
 
 @login_required
@@ -300,3 +304,127 @@ def document_metadata(
         "cread_sub_form": cread_subcategory_form,
         "cread_categories": categories_struct
     }))
+
+
+@login_required
+def publish(request, docid, template=None):
+    return _change_published_status(request, docid, True)
+
+
+@login_required
+def unpublish(request, docid, template=None):
+    return _change_published_status(request, docid, False)
+
+
+def _change_published_status(request, docid, published):
+
+    # let's restrict auth to superuser only
+    if not request.user.is_superuser:
+        return HttpResponse("Not allowed", status=403)
+
+    # search for the document
+    document = None
+    try:
+        document = _resolve_document(
+            request,
+            docid,
+            'base.view_resourcebase',
+            _PERMISSION_MSG_VIEW)
+
+    except Http404:
+        return HttpResponse(
+            loader.render_to_string(
+                '404.html', RequestContext(
+                    request, {
+                        })), status=404)
+
+    except PermissionDenied:
+        return HttpResponse(
+            loader.render_to_string(
+                '401.html', RequestContext(
+                    request, {
+                        'error_message': _("You are not allowed to view this document.")})), status=403)
+
+    if document is None:
+        return HttpResponse(
+            'An unknown error has occured.',
+            mimetype="text/plain",
+            status=401
+        )
+
+    Document.objects.filter(id=docid).update(is_published=published)
+
+    return document_detail(request, docid)
+
+
+#def document_detail(request, docid):
+    #"""
+    #The view that show details of each document
+    #"""
+    #document = None
+    #try:
+        #document = _resolve_document(
+            #request,
+            #docid,
+            #'base.view_resourcebase',
+            #_PERMISSION_MSG_VIEW)
+
+    #except Http404:
+        #return HttpResponse(
+            #loader.render_to_string(
+                #'404.html', RequestContext(
+                    #request, {
+                        #})), status=404)
+
+    #except PermissionDenied:
+        #return HttpResponse(
+            #loader.render_to_string(
+                #'401.html', RequestContext(
+                    #request, {
+                        #'error_message': _("You are not allowed to view this document.")})), status=403)
+
+    #if document is None:
+        #return HttpResponse(
+            #'An unknown error has occured.',
+            #mimetype="text/plain",
+            #status=401
+        #)
+
+    #else:
+        #try:
+            #related = document.content_type.get_object_for_this_type(
+                #id=document.object_id)
+        #except:
+            #related = ''
+
+        ## Update count for popularity ranking,
+        ## but do not includes admins or resource owners
+        #if request.user != document.owner and not request.user.is_superuser:
+            #Document.objects.filter(id=document.id).update(popular_count=F('popular_count') + 1)
+
+        #metadata = document.link_set.metadata().filter(
+            #name__in=settings.DOWNLOAD_FORMATS_METADATA)
+
+        #context_dict = {
+            #'perms_list': get_perms(request.user, document.get_self_resource()),
+            #'permissions_json': _perms_info_json(document),
+            #'resource': document,
+            #'metadata': metadata,
+            #'imgtypes': IMGTYPES,
+            #'related': related}
+
+        #if settings.SOCIAL_ORIGINS:
+            #context_dict["social_links"] = build_social_links(request, document)
+
+        #if getattr(settings, 'EXIF_ENABLED', False):
+            #try:
+                #from geonode.contrib.exif.utils import exif_extract_dict
+                #exif = exif_extract_dict(document)
+                #if exif:
+                    #context_dict['exif_data'] = exif
+            #except:
+                #print "Exif extraction failed."
+
+        #return render_to_response(
+            #"documents/document_detail.html",
+            #RequestContext(request, context_dict))

@@ -20,6 +20,8 @@ from guardian.shortcuts import get_objects_for_user
 
 from geonode.base.models import ResourceBase
 from geonode.layers.models import Layer
+from geonode.documents.models import Document
+from geonode.maps.models import Map
 
 from geonode.api.api import TypeFilteredResource
 from geonode.api.resourcebase_api import ResourceBaseResource, CommonMetaApi, LayerResource, DocumentResource
@@ -336,3 +338,40 @@ class CReadDocumentResource(DocumentResource):
 
     def create_response(self, request, data, response_class=HttpResponse, **response_kwargs):
         return _create_response(self, request, data, response_class, **response_kwargs)
+
+    class Meta(CommonMetaApi):
+        filtering = CommonMetaApi.filtering
+        filtering.update({'doc_type': ALL})
+        queryset = Document.objects.distinct().order_by('-date')
+        resource_name = 'documents'
+
+
+class CReadMapResource(DocumentResource):
+
+    def build_filters(self, filters={}):
+        orm_filters = super(CReadMapResource, self).build_filters(filters)
+
+        if 'cread_category_id__in' in filters:
+            orm_filters['creadresource__category_id__in'] = filters.getlist('cread_category_id__in')
+
+        return orm_filters
+
+    def apply_filters(self, request, applicable_filters):
+        filtered = super(CReadMapResource, self).apply_filters(request, applicable_filters)
+
+        # allow staff and superuser to retrieve all the resources
+        if settings.RESOURCE_PUBLISHING and not request.user.is_staff:
+            filtered = filtered.filter(is_published=True)
+
+        return filtered
+
+    def dehydrate(self, bundle):
+        _add_category_info(bundle.obj.id, bundle.data)
+        return bundle
+
+    def create_response(self, request, data, response_class=HttpResponse, **response_kwargs):
+        return _create_response(self, request, data, response_class, **response_kwargs)
+
+    class Meta(CommonMetaApi):
+        queryset = Map.objects.distinct().order_by('-date')
+        resource_name = 'maps'

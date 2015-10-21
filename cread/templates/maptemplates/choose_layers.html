@@ -1,0 +1,125 @@
+{% extends "site_base.html" %}
+{% load i18n %}
+{% load staticfiles %}
+{% load url from future %}
+
+{% block title %} {% trans "Create Map - Choose layers"  %} - {{ block.super }}  {% endblock %}
+
+{% block body_class %}map create{% endblock %}
+
+{% block head %} {{ block.super }} {% endblock %}
+
+{% block body_outer %}
+<div class="page-header">
+    <h2 class="page-title">{% trans "Create Map - Choose layers" %}</h2>
+</div>
+
+<div class="row">
+    <div class="col-md-3">
+        <ul>
+        <li>1. Choose template</li>
+        <li><b>2. Choose required layers</b></li>
+        <li>3. Edit metadata</li>
+        <li>4. View map </li>
+        <li>5. Wait for publication </li>
+        </ul>
+
+        Select a layer for each one of the categories requires by the map template.
+
+        <br/><br/>
+        <i>
+        <p>
+        In order to create a map you have to choose a thematic map template.
+        A map template sets the requirements for a map to have at least some layers related to
+        specific categories.
+        </p>
+        <p>
+        ...
+        </p>
+        </i>
+    </div>
+
+  <div class="col-md-9">
+
+  <div class="col-md-9">
+    <p class="lead">
+      {% blocktrans with maptemplate.name as template_name %}
+        Choosing layers for template {{ template_name }}
+      {% endblocktrans %}
+    </p>
+
+
+    {% block additional_info %}{% endblock %}
+
+    {% if errors %}
+    <div id="errors" class="alert alert-danger">
+      {% for error in errors %}
+      <p>{{ error }}</p>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+        <div class="row">
+            <div class="col-md-9  form-controls form-group" >
+                <label class="control-label required-field">{% trans "Template description" %}</label>
+                <div class="row">
+                    <div class="col-md-9" >
+                        {{ maptemplate.description }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    <form class="form-horizontal" action="{% url 'maptemplate_choose_layers' template_id=maptemplate.id %}" method="POST">
+
+        <div class="row">
+            <div class="col-md-9  form-controls form-group" >
+                <label class="control-label required-field">{% trans "Layers" %}</label>
+
+                <fieldset id="cread_subcategory_form">
+                {% autoescape off %}
+
+                    {% for form in forms %}
+
+                    <div class="row">
+                        <div class="col-md-12" >
+                            {{ form.0.description }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-1" >
+                        &nbsp;
+                        </div>
+
+                        <div class="col-md-11" >
+                          {{ form.1}}
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+                {% endautoescape %}
+                </fieldset>
+            </div>
+        </div>
+
+        <div class="form-actions">
+          <input type="submit" class="btn btn-primary cread-meta-button" value="{% trans "Next" %}"/>
+        </div>
+
+</div>
+{% endblock %}
+
+
+{% block extra_script %}
+<script type="text/javascript">
+{% autoescape off %}
+
+  csrf_token =  "{{ csrf_token }}",
+  form_target = "{{ UPLOADER_URL }}",
+
+{% endautoescape %}
+
+</script>
+
+{% endblock extra_script %}

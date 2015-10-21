@@ -92,12 +92,13 @@ def cread_upload_geo(request, template='cread_upload_geo.html'):
     logger.debug("*** ENTER cread_upload_geo")
     return layer_upload(request, template=template)
 
+
 @login_required
 def cread_upload_mosaics(request, template='cread_upload_mosaics.html'):
     if request.method == 'GET':
         mosaics = Layer.objects.filter(is_mosaic=True).order_by('name')
         ctx = {
-            'mosaics' : mosaics,
+            'mosaics': mosaics,
             'charsets': CHARSETS,
             'is_layer': True,
         }
@@ -187,7 +188,8 @@ def cread_upload_mosaics(request, template='cread_upload_mosaics.html'):
             json.dumps(out),
             mimetype='application/json',
             status=status_code)
-            
+
+
 @login_required
 def layer_metadata_update(request, layername, template='layers/cread_layer_metadata_update.html'):
     return layer_metadata_create(request, layername, template=template, publish=None)
@@ -416,10 +418,10 @@ def layer_metadata_create(request, layername, template='layers/cread_layer_metad
     }))
 
 
-def layer_detail(request, layername, template=None):
+def layer_detail(request, layername, template='layers/layer_detail.html'):
 
-    if template:
-        logger.warning('Template param not expected: %s', template)
+    #if template:
+        #logger.warning('Template param not expected: %s', template)
 
     layer = _resolve_layer(
         request,
@@ -476,27 +478,32 @@ def layer_detail(request, layername, template=None):
 
     granules = None
     all_granules = None
-    filter = None
+    granule_filter = None
     if layer.is_mosaic:
-        cat = gs_catalog
-        cat._cache.clear()
-        store = cat.get_store(layer.name)
-        coverages = cat.mosaic_coverages(store)
-        filter = None
         try:
-            if request.GET["filter"]:
-                filter = request.GET["filter"]
-        except:
-            pass
-            
-        try:
+            cat = gs_catalog
+            cat._cache.clear()
+            store = cat.get_store(layer.name)
+            coverages = cat.mosaic_coverages(store)
+
+            granule_filter = None
+            try:
+                if request.GET["filter"]:
+                    granule_filter = request.GET["filter"]
+            except:
+                pass
+
             schema = cat.mosaic_coverage_schema(coverages['coverages']['coverage'][0]['name'], store)
             offset = 10 * (request.page - 1)
-            granules = cat.mosaic_granules(coverages['coverages']['coverage'][0]['name'], store, limit=10, offset=offset, filter=filter)
-            all_granules = cat.mosaic_granules(coverages['coverages']['coverage'][0]['name'], store, filter=filter)
+            granules = cat.mosaic_granules(coverages['coverages']['coverage'][0]['name'], store, limit=10, offset=offset, filter=granule_filter)
+            all_granules = cat.mosaic_granules(coverages['coverages']['coverage'][0]['name'], store, filter=granule_filter)
+
         except:
-            granules = {"features":[]}
-            all_granules = {"features":[]}
+            granules = {"features": []}
+            all_granules = {"features": []}
+
+            import traceback
+            traceback.print_exc()
 
         #print (' +++++++++++++++++++++++++++++++++++++++++ \n' + str(granules) + '\n +++++++++++++++++++++++++++++++++++++++++ ')
 
@@ -510,9 +517,10 @@ def layer_detail(request, layername, template=None):
         "wps_enabled": settings.OGC_SERVER['default']['WPS_ENABLED'],
         "is_owner": request.user == layer.owner,
         "is_superuser": request.user.is_superuser,
+
         "granules": granules,
         "all_granules": all_granules,
-        "filter": filter,
+        "filter": granule_filter,
     }
 
     context_dict["viewer"] = json.dumps(
@@ -534,12 +542,12 @@ def layer_detail(request, layername, template=None):
     if settings.SOCIAL_ORIGINS:
         context_dict["social_links"] = build_social_links(request, layer)
 
-    if request.user.is_superuser:
-        logger.debug("Dispatching to admin page")
-    else:
-        logger.debug("Dispatching to user page")
+    #if request.user.is_superuser:
+        #logger.debug("Dispatching to admin page")
+    #else:
+        #logger.debug("Dispatching to user page")
 
-    template = 'layers/layer_detail_admin.html' if request.user.is_superuser else 'layers/layer_detail_user.html'
+    #template = 'layers/layer_detail_admin.html' if request.user.is_superuser else 'layers/layer_detail_user.html'
 
     return render_to_response(template, RequestContext(request, context_dict))
 
